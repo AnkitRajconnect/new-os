@@ -325,11 +325,37 @@ function clearSpotlight(){
   const ring=document.getElementById('spotlight-ring');if(ring)ring.style.display='none';
 }
 
+function getBestVoice(){
+  const voices=window.speechSynthesis.getVoices();
+  // Priority order: natural/neural Google/Microsoft voices first
+  const preferred=[
+    'Google UK English Female','Google US English','Microsoft Aria Online (Natural)',
+    'Microsoft Jenny Online (Natural)','Microsoft Guy Online (Natural)',
+    'Samantha','Karen','Moira','Tessa','Fiona',
+    'Google UK English Male','en-US','en-GB'
+  ];
+  for(const name of preferred){
+    const v=voices.find(v=>v.name.includes(name)||v.lang===name);
+    if(v)return v;
+  }
+  // Fallback: any English voice that isn't "eSpeak" (the most robotic)
+  return voices.find(v=>v.lang.startsWith('en')&&!v.name.toLowerCase().includes('espeak'))||voices[0]||null;
+}
+
 function speakText(text){
   if(!ttsEnabled||!window.speechSynthesis)return;
   stopSpeech();
-  const utter=new SpeechSynthesisUtterance(text.replace(/<[^>]+>/g,''));
-  utter.rate=ttsRate;utter.lang='en-US';currentUtter=utter;
+  const clean=text.replace(/<[^>]+>/g,' ').replace(/\s+/g,' ').trim();
+  const utter=new SpeechSynthesisUtterance(clean);
+  utter.rate=ttsRate;
+  utter.pitch=1.05;  // slightly warmer than flat 1.0
+  utter.volume=0.92;
+  utter.lang='en-US';
+  // Try to assign best voice — voices may not be loaded yet, so retry once
+  const assignVoice=()=>{const v=getBestVoice();if(v)utter.voice=v;};
+  assignVoice();
+  if(!utter.voice)window.speechSynthesis.onvoiceschanged=()=>{assignVoice();window.speechSynthesis.onvoiceschanged=null;};
+  currentUtter=utter;
   const wave=document.getElementById('coachWaveform'),pauseBtn=document.getElementById('coachPauseBtn');
   if(wave)wave.style.display='flex';if(pauseBtn)pauseBtn.style.display='flex';
   utter.onend=utter.onerror=()=>{if(wave)wave.style.display='none';if(pauseBtn)pauseBtn.style.display='none';currentUtter=null;};
