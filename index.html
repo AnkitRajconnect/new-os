@@ -1,0 +1,34 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>SkillOS Analytics</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+
+<div class="app">
+
+  <div class="sidebar">
+    <h2>SkillOS</h2>
+    <button onclick="setView('overview')">Overview</button>
+    <button onclick="setView('realtime')">Realtime</button>
+    <button onclick="setView('events')">Events</button>
+    <button onclick="setView('conversions')">Conversions</button>
+    <button onclick="setView('job')">Job Mode</button>
+    <button onclick="setView('ai')">AI Trainer</button>
+  </div>
+
+  <div class="main">
+    <div class="topbar">
+      <h1 id="title">Overview</h1>
+    </div>
+    <div id="content"></div>
+  </div>
+
+</div>
+
+<script src="app.js"></script>
+<script src="ai.js"></script>
+
+</body>
+</html>
