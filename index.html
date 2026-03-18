@@ -247,7 +247,7 @@ function render(){
   document.getElementById('lessonGrid').innerHTML=show.map(i=>{
     const l=LM[i];const isDone=done.includes(i);const isNext=i===nextIdx;
     const locked=!isDone&&i>nextIdx;
-    return `<div class="lc ${locked?'locked':''}" onclick="${locked?'':\"window.location.href='course.html'\"}">
+    return `<div class="lc ${locked?'locked':''}" onclick="${locked?'':'goToCourse()'}">
       <div class="lc-num">LESSON ${i+1} · ${l.x} XP</div>
       <div class="lc-title">${l.t}</div>
       <span class="lc-tag ${isDone?'done':isNext?'next':'locked'}">${isDone?'✓ Done':isNext?'← Next':'Locked'}</span>
@@ -281,6 +281,7 @@ function render(){
       <span>${d}</span><span>${i===todayI?'🔥':'·'}</span>
     </div>`).join('');
 }
+function goToCourse(){window.location.href='course.html';}
 render();
 window.addEventListener('focus',render);
 </script>
