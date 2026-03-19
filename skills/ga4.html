@@ -547,7 +547,6 @@ body{font-family:'Roboto',sans-serif;background:var(--bg);color:var(--text);disp
     <div class="progress-bar"><div class="progress-fill" id="progressFill" style="width:0%"></div></div>
     <div class="progress-text" id="progressText">0%</div>
   </div>
-  <button class="btn-audio" id="audioBtn" onclick="toggleAudio()">🔊</button>
   <button class="btn-john" onclick="openJohn()">🎓 Ask Prof. John</button>
 </div>
 
@@ -639,6 +638,18 @@ body{font-family:'Roboto',sans-serif;background:var(--bg);color:var(--text);disp
 
       <!-- INSTRUCTION PANEL -->
       <div class="instruction-panel" id="instrPanel">
+        <!-- COACH BANNER fixed at top of panel -->
+        <div style="background:linear-gradient(135deg,#6c63ff,#8b5cf6);padding:10px 12px;flex-shrink:0">
+          <div style="display:flex;align-items:center;gap:8px;margin-bottom:6px">
+            <div style="width:26px;height:26px;border-radius:50%;background:rgba(255,255,255,.2);display:flex;align-items:center;justify-content:center;font-size:13px;flex-shrink:0">👨‍🏫</div>
+            <div style="color:rgba(255,255,255,.7);font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.8px;flex:1">Coach Alex</div>
+            <button id="audioBtn" onclick="toggleAudio()" title="Play / Pause" style="width:26px;height:26px;border-radius:50%;background:rgba(255,255,255,.2);border:none;color:#fff;cursor:pointer;font-size:12px;display:flex;align-items:center;justify-content:center">▶</button>
+          </div>
+          <div id="coachText" style="color:#fff;font-size:11.5px;line-height:1.6;max-height:88px;overflow-y:auto">Welcome to GA4!</div>
+          <button id="coachBtn" onclick="advanceStep()" style="background:rgba(255,255,255,.2);color:#fff;border:1px solid rgba(255,255,255,.3);border-radius:6px;padding:5px 12px;font-size:10px;font-weight:700;cursor:pointer;margin-top:7px;width:100%;font-family:'Roboto',sans-serif;letter-spacing:.3px">Continue →</button>
+        </div>
+        <!-- LESSON TABS -->
+        <div id="lessonTabsRow" style="display:flex;border-bottom:1px solid var(--border);flex-shrink:0;overflow-x:auto"></div>
         <div class="instruction-scroll" id="instrScroll">
           <!-- Injected by JS -->
         </div>
@@ -789,20 +800,6 @@ body{font-family:'Roboto',sans-serif;background:var(--bg);color:var(--text);disp
   </div><!-- /main -->
 </div><!-- /app -->
 
-<!-- COACH -->
-<div class="coach" id="coach">
-  <div class="coach-hdr" id="coachHdr">
-    <div class="coach-avatar">👨‍🏫</div>
-    <div class="coach-name">COACH ALEX</div>
-    <button class="coach-min-btn" onclick="minimizeCoach()">—</button>
-  </div>
-  <div class="coach-body">
-    <div class="coach-text" id="coachText">Loading...</div>
-    <button class="coach-btn" id="coachBtn" onclick="advanceStep()">Continue →</button>
-  </div>
-</div>
-<div class="coach-bubble" id="coachBubble" onclick="maximizeCoach()">👨‍🏫 Coach Alex</div>
-
 <!-- PROF. JOHN -->
 <div class="john-overlay" id="johnOverlay" onclick="closeJohnBg(event)">
   <div class="john-box">
@@ -818,7 +815,7 @@ body{font-family:'Roboto',sans-serif;background:var(--bg);color:var(--text);disp
       <div class="jmsg bot">Hello. I'm Prof. John. The Coach handles your lesson steps — I'm here for the deeper questions you want to explore beyond the lesson. What would you like to understand better?</div>
     </div>
     <div class="john-input-row">
-      <input class="john-input" id="johnInput" placeholder="Ask a deeper question..." onkeydown="if(event.key==='Enter')sendJohn()">
+      <input class="john-input" id="johnInput" placeholder="Ask a deeper question..." onfocus="pauseAudio()" onkeydown="if(event.key==='Enter')sendJohn()">
       <button class="john-send-btn" onclick="sendJohn()">➤</button>
     </div>
   </div>
@@ -873,17 +870,17 @@ const COURSE = {
           },
           {
             id: 'step-3',
-            label: 'What does 12.4% growth mean?',
-            coach: 'Active users are up **12.4%**. That is strong growth. But here is the analyst\'s mindset: **good news still needs context**. 12.4% growth in users — does that mean the business is healthy?\n\nAnswer the question below before moving on.',
-            desc: 'A growing user count tells you marketing is working. But it says nothing about what those users do, whether they buy, or whether they come back.',
-            hint: '→ Answer the question below',
+            label: 'Is the growth arrow up or down?',
+            coach: 'Active Users are up **12.4%**.\n\nNotice the green arrow (▲) next to the number. In GA4, a green arrow means the metric **increased** compared to last month.\n\nIs this good news for TechMart?',
+            desc: 'Green arrow (▲) = grew vs last month. Red arrow (▼) = shrank vs last month. This is always your first check — direction before depth.',
+            hint: '→ Look at the colour and direction of the arrow next to Active Users. Then answer below.',
             action: 'shortanswer',
-            question: 'If users are up 12.4% but revenue is flat — what does that tell you?',
-            answerHint: 'Think: what is happening to conversion?',
-            keywords: ['conversion', 'converting', 'convert', 'buying', 'buy', 'purchase', 'quality'],
-            feedback: 'Correct thinking. Growing users with flat revenue means the new users are not converting — they visit but do not buy. This is called a conversion rate problem.',
-            wrongFeedback: 'Think about the relationship between users and money. If more people visit but revenue stays the same, something is happening at the purchase step.',
-            audio: 'Active users are up 12 percent. But good news still needs context. Answer the question below before moving on.'
+            question: 'The arrow next to Active Users is pointing _______ . (one word: up or down)',
+            answerHint: 'Look at the metric card on the dashboard. Is the arrow pointing upward or downward?',
+            keywords: ['up', 'upward', 'up wards', 'upwards', 'growing', 'increasing'],
+            feedback: 'Correct! The green upward arrow means more users are visiting TechMart this month compared to last month. More visitors = good sign.',
+            wrongFeedback: 'Look at the Active Users card on the dashboard. Next to the number 24,821, there is a small arrow. Which way is it pointing?',
+            audio: 'Active Users are up 12.4 percent. Notice the green arrow next to the number. In GA4, a green arrow means the metric increased. Is this good news for TechMart?'
           },
           {
             id: 'step-4',
@@ -907,18 +904,13 @@ const COURSE = {
           },
           {
             id: 'step-6',
-            label: 'Compare all metrics together',
-            coach: 'Now click on **Revenue** — the last card. TechMart\'s revenue is up 28.4%. That seems great. But given what we just found, should you trust this number?\n\nClick revenue, then tell me: is this sustainable?',
-            desc: 'Strong revenue growth alongside declining engagement is a warning sign. It could mean: (1) A one-time spike (sale, promotion), or (2) Existing loyal customers are buying more while new users bounce. Either way, it is not stable growth.',
-            hint: '→ Click the Revenue card, then answer below',
-            action: 'click-then-answer',
-            expect: 'm-revenue',
-            question: 'Revenue is up 28.4% but engagement is declining. Is this sustainable? Answer in 1-2 words.',
-            answerHint: 'Think about what happens when existing customers stop shopping.',
-            keywords: ['no', 'not', 'unsustainable', 'risky', 'temporary', 'short', 'danger', 'warning'],
-            feedback: 'Exactly right. Revenue spikes driven by loyal existing customers while new visitors do not engage is not sustainable. This is the core problem you will investigate.',
-            wrongFeedback: 'Consider: if the engaged users who generate revenue gradually leave, and new users do not engage — what happens to revenue over the next 3 months?',
-            audio: 'Click on Revenue. It is up 28 percent. But given declining engagement — is this sustainable? Answer below.'
+            label: 'Find the red arrow',
+            coach: 'Look at all the cards again. Most arrows are green (going up).\n\nBut one card has a **red arrow pointing down**.\n\nClick on that card — the one with the red arrow.',
+            desc: 'A red downward arrow (▼) means that metric got smaller compared to last month. This is your first warning signal.',
+            hint: '→ Look at all metric cards. Find the one with a red downward arrow. Click it.',
+            action: 'click',
+            expect: 'm-engtime',
+            audio: 'Look at all the cards. Most arrows are green going up. But one card has a red arrow pointing down. Find it and click on it.'
           },
           {
             id: 'step-7',
@@ -998,10 +990,10 @@ const COURSE = {
             label: 'Analyze organic quality',
             coach: 'Organic Search: 71.2% engagement rate, 4m 12s avg time, $7,840 revenue. That is strong quality. These visitors are interested, stay long, and buy.\n\nNow compare: which channel has the WORST engagement rate?',
             desc: 'When comparing channels, analysts look at three quality signals together: engagement rate, avg engagement time, and revenue per user. A channel can have high volume but low quality — or low volume but high quality.',
-            hint: '→ Look at the Eng. Rate column and find the lowest value',
+            hint: '→ Look at the Eng. Rate column for every row. Find the smallest percentage.',
             action: 'shortanswer',
             question: 'Which channel has the lowest engagement rate? (one or two words)',
-            answerHint: 'Check the Eng. Rate column — find the smallest percentage',
+            answerHint: 'Look at the Eng. Rate column. Read each number from top to bottom. Which number is the smallest? Then read the channel name in the first column of that row.',
             keywords: ['paid', 'paid search', 'cpc', 'google ads', 'ads'],
             feedback: 'Correct — Paid Search has 54.8% engagement, the lowest of all channels. And it is the only channel showing ALL new users (2,814 new = 2,814 total, meaning zero returning). This is your problem channel.',
             wrongFeedback: 'Look at the Eng. Rate column carefully. Compare all six numbers and find the smallest one.',
@@ -1025,7 +1017,7 @@ const COURSE = {
             hint: '→ Answer the question below',
             action: 'shortanswer',
             question: 'Paid Search has 0 returning users and 54.8% engagement. What is the most likely problem with the ads?',
-            answerHint: 'Think: what happens between clicking the ad and leaving without buying?',
+            answerHint: 'Think about the journey: a user sees an ad, clicks it, and lands on TechMart. They leave without buying. Where in that journey might the problem be?',
             keywords: ['mismatch', 'landing', 'page', 'audience', 'wrong', 'target', 'expectations', 'relevance', 'irrelevant'],
             feedback: 'Exactly. The most likely cause is a mismatch between what the ad promises and what the landing page delivers. Users click expecting one thing and find another — so they leave immediately.',
             wrongFeedback: 'Focus on the journey: user sees ad → clicks → lands on page → leaves. At which step is the problem? Hint: 54.8% engagement means nearly half leave immediately.',
@@ -1049,7 +1041,7 @@ const COURSE = {
             hint: '→ Answer below — think about who email subscribers are',
             action: 'shortanswer',
             question: 'Why do email users have the highest engagement rate? Answer in 2-3 words.',
-            answerHint: 'Think about what email subscribers have in common',
+            answerHint: 'Think about how a person becomes an email subscriber. It is a voluntary action. What does choosing to subscribe tell you about that person\'s level of interest?',
             keywords: ['trust', 'trusted', 'loyal', 'know', 'interested', 'opted', 'subscribed', 'chose', 'intent', 'warm'],
             feedback: 'Right. Email subscribers opted in — they already trust the brand. They are warm leads, not cold traffic. This is why email consistently outperforms in engagement across almost every industry.',
             wrongFeedback: 'Think about HOW someone becomes an email subscriber. They gave their email address voluntarily — what does that say about their interest level?',
@@ -1253,7 +1245,6 @@ let state = {
 // =================================================================
 document.addEventListener('DOMContentLoaded', () => {
   initCharts();
-  initCoachDrag();
   loadLesson(0);
 });
 
@@ -1295,20 +1286,20 @@ function loadLesson(lessonIdx) {
 //  BUILD LESSON TABS
 // =================================================================
 function buildLessonTabs(mod) {
-  const tabs = document.getElementById('lessonTabs');
+  const tabs = document.getElementById('lessonTabsRow');
+  if (!tabs) return;
   tabs.innerHTML = '';
   mod.lessons.forEach((l, i) => {
     const tab = document.createElement('div');
-    tab.className = 'lesson-tab' +
-      (i === state.lesson ? ' active' : '') +
-      (state.lessonsDone.has(state.module + '-' + i) ? ' done' : '') +
-      (i > state.lesson && !state.lessonsDone.has(state.module + '-' + (i-1)) ? ' locked' : '');
+    tab.style.cssText = 'padding:7px 12px;font-size:10px;font-weight:600;cursor:pointer;border-bottom:2px solid transparent;color:var(--text2);white-space:nowrap;flex-shrink:0;transition:color .15s';
+    const isDone = state.lessonsDone.has(state.module + '-' + i);
+    const isLocked = i > 0 && !state.lessonsDone.has(state.module + '-' + (i - 1)) && i > state.lesson;
+    if (i === state.lesson) { tab.style.color = 'var(--blue)'; tab.style.borderBottomColor = 'var(--blue)'; }
+    else if (isDone) { tab.style.color = 'var(--green)'; }
+    else if (isLocked) { tab.style.color = 'rgba(0,0,0,.2)'; tab.style.cursor = 'not-allowed'; }
     tab.textContent = l.title;
     tab.onclick = () => {
-      if (tab.classList.contains('locked')) {
-        showToast('Complete the current lesson first', 'info');
-        return;
-      }
+      if (isLocked) { showToast('Complete the current lesson first', 'info'); return; }
       loadLesson(i);
     };
     tabs.appendChild(tab);
@@ -1390,8 +1381,12 @@ function runStep(idx) {
   const sc = document.getElementById('sc-' + idx);
   if (sc) sc.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
 
-  // Play audio
-  if (step.audio) playAudio(step.audio);
+  // Play audio after short delay so coach banner updates first
+  if (step.audio) {
+    // Pause any existing audio first
+    pauseAudio();
+    setTimeout(() => playAudio(step.audio), 600);
+  }
 
   updateProgress();
 }
@@ -1408,9 +1403,11 @@ function injectStepContent(step, idx) {
     container.innerHTML = `
 <div class="short-answer-box" id="sa-${idx}">
   <div class="sa-prompt">${step.question}</div>
-  <div class="sa-hint">${step.answerHint}</div>
+  <div class="sa-hint">💡 How to find the answer: ${step.answerHint}</div>
   <div class="sa-input-row">
-    <input class="sa-input" id="sa-input-${idx}" placeholder="Type your answer..." onkeydown="if(event.key==='Enter')checkShortAnswer(${idx})">
+    <input class="sa-input" id="sa-input-${idx}" placeholder="Type your answer..." 
+      onfocus="pauseAudio()"
+      onkeydown="if(event.key==='Enter')checkShortAnswer(${idx})">
     <button class="sa-submit" onclick="checkShortAnswer(${idx})">Check</button>
   </div>
   <div class="sa-feedback" id="sa-fb-${idx}"></div>
@@ -1419,15 +1416,22 @@ function injectStepContent(step, idx) {
 
   if (step.action === 'click-then-answer') {
     container.innerHTML = `
-<div class="short-answer-box" id="sa-${idx}" style="opacity:.5;pointer-events:none" id="sa-locked-${idx}">
+<div class="short-answer-box" id="sa-${idx}" style="opacity:.5;pointer-events:none">
   <div class="sa-prompt">${step.question}</div>
-  <div class="sa-hint">${step.answerHint} — <em>Click the dashboard element first</em></div>
+  <div class="sa-hint">💡 ${step.answerHint} — <em>click the dashboard element first</em></div>
   <div class="sa-input-row">
-    <input class="sa-input" id="sa-input-${idx}" placeholder="Click the element on the dashboard first...">
+    <input class="sa-input" id="sa-input-${idx}" placeholder="Click the highlighted element first..."
+      onfocus="pauseAudio()">
     <button class="sa-submit" onclick="checkShortAnswer(${idx})">Check</button>
   </div>
   <div class="sa-feedback" id="sa-fb-${idx}"></div>
 </div>`;
+  }
+
+  if (step.action === 'observe' || step.action === 'read') {
+    container.innerHTML = `
+<button class="step-next-btn show" style="display:block;background:var(--coach);color:#fff;border:none;border-radius:7px;padding:8px 14px;font-size:11px;font-weight:700;cursor:pointer;margin-top:6px;width:100%" 
+  onclick="completeStep(${idx})">I've read this → Continue</button>`;
   }
 
   if (step.action === 'task') {
@@ -1479,18 +1483,21 @@ function injectStepContent(step, idx) {
 // =================================================================
 function updateCoach(step) {
   const text = document.getElementById('coachText');
-  text.innerHTML = step.coach
-    .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
-    .replace(/\n/g, '<br>');
+  if (text) {
+    text.innerHTML = step.coach
+      .replace(/\*\*(.*?)\*\*/g, '<strong style="color:#e0d9ff">$1</strong>')
+      .replace(/\n/g, '<br>');
+  }
 
   const btn = document.getElementById('coachBtn');
+  if (!btn) return;
 
   if (step.action === 'shortanswer' || step.action === 'click-then-answer') {
     btn.textContent = 'Waiting for your answer...';
     btn.style.opacity = '.5';
     btn.onclick = null;
   } else if (step.action === 'task') {
-    btn.textContent = 'Complete the task →';
+    btn.textContent = 'Complete the task below →';
     btn.style.opacity = '1';
     btn.onclick = () => {
       const taskBtn = document.querySelector('.task-complete');
@@ -1755,18 +1762,12 @@ function showConcept(id) {
   const c = CONCEPTS[id];
   if (!c) return;
   const text = document.getElementById('coachText');
-  text.innerHTML = `<strong>${id.toUpperCase()} — Deep dive:</strong><br><br>
-<strong>What it is:</strong> ${c.what}<br><br>
-<strong>Compared to old GA:</strong> ${c.compare}<br><br>
-<span style="color:var(--green)">✓ Good: ${c.good}</span><br>
-<span style="color:var(--red)">✗ Bad: ${c.bad}</span><br><br>
-<strong>Decision trigger:</strong> ${c.decision}`;
-
-  const btn = document.getElementById('coachBtn');
-  btn.textContent = 'Back to lesson →';
-  btn.style.opacity = '1';
-  btn.onclick = () => runStep(state.step);
-  maximizeCoach();
+  if (text) {
+    text.innerHTML = `<strong style="color:#e0d9ff">${id.toUpperCase()}:</strong> ${c.what}<br><br>
+<span style="color:#86efac">Good: ${c.good}</span><br>
+<span style="color:#fca5a5">Bad: ${c.bad}</span>`;
+  }
+  showToast('Concept loaded in Coach panel', 'info');
 }
 
 // =================================================================
@@ -1962,34 +1963,48 @@ Rules: Be precise and professional. No padding. Under 120 words. No markdown for
 }
 
 // =================================================================
-//  AUDIO (Web Speech API with pre-recorded support architecture)
+//  AUDIO — pause on input focus, better voice, play/pause button
 // =================================================================
-// Architecture: Check for pre-recorded audio first, fall back to speech synthesis
-// To add pre-recorded: put MP3 files at /audio/[moduleId]-[lessonId]-[stepId].mp3
-async function playAudio(text) {
-  if (!text) return;
-  if (window.speechSynthesis) {
-    window.speechSynthesis.cancel();
-    const clean = text.replace(/[*_]/g, '').replace(/[🎉👆👋✓⚠️📋🔍]/g, '');
-    const utt = new SpeechSynthesisUtterance(clean);
-    utt.rate = 0.91;
-    utt.pitch = 1.0;
-    utt.volume = 1;
-    const voices = window.speechSynthesis.getVoices();
-    const voice = voices.find(v => v.name.includes('Google') && v.lang === 'en-US')
-      || voices.find(v => v.lang === 'en-US') || voices[0];
-    if (voice) utt.voice = voice;
-    utt.onstart = () => { state.speaking = true; document.getElementById('audioBtn').classList.add('on'); };
-    utt.onend = () => { state.speaking = false; document.getElementById('audioBtn').classList.remove('on'); };
-    window.speechSynthesis.speak(utt);
-  }
+function pauseAudio() {
+  if (!window.speechSynthesis) return;
+  window.speechSynthesis.cancel();
+  state.speaking = false;
+  const btn = document.getElementById('audioBtn');
+  if (btn) { btn.textContent = '▶'; btn.style.background = 'rgba(255,255,255,.2)'; }
+}
+
+function playAudio(text) {
+  if (!text || !window.speechSynthesis) return;
+  window.speechSynthesis.cancel();
+  const clean = text.replace(/[*_[\]]/g,'').replace(/[🎉👆👋✓⚠️📋🔍💡📌🔴]/g,'');
+  const utt = new SpeechSynthesisUtterance(clean);
+  // Slower, clearer pace — sounds more like a teacher
+  utt.rate = 0.86;
+  utt.pitch = 1.0;
+  utt.volume = 1;
+  const voices = window.speechSynthesis.getVoices();
+  // Best priority: Google US English (natural) → any US English → any English
+  const voice = voices.find(v => v.name === 'Google US English')
+    || voices.find(v => v.name.includes('Google') && v.lang === 'en-US')
+    || voices.find(v => v.lang === 'en-US' && !v.name.toLowerCase().includes('microsoft'))
+    || voices.find(v => v.lang.startsWith('en'));
+  if (voice) utt.voice = voice;
+  utt.onstart = () => {
+    state.speaking = true;
+    const btn = document.getElementById('audioBtn');
+    if (btn) { btn.textContent = '⏸'; btn.style.background = 'rgba(255,255,255,.35)'; }
+  };
+  utt.onend = () => {
+    state.speaking = false;
+    const btn = document.getElementById('audioBtn');
+    if (btn) { btn.textContent = '▶'; btn.style.background = 'rgba(255,255,255,.2)'; }
+  };
+  window.speechSynthesis.speak(utt);
 }
 
 function toggleAudio() {
   if (state.speaking) {
-    window.speechSynthesis.cancel();
-    state.speaking = false;
-    document.getElementById('audioBtn').classList.remove('on');
+    pauseAudio();
   } else {
     const lesson = COURSE[state.module]?.lessons[state.lesson];
     const step = lesson?.steps[state.step];
@@ -1997,48 +2012,12 @@ function toggleAudio() {
   }
 }
 
+// AUTO PAUSE when user clicks into any input or textarea
+document.addEventListener('focusin', e => {
+  if (e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA') pauseAudio();
+});
+
 window.speechSynthesis.onvoiceschanged = () => {};
-
-// =================================================================
-//  COACH DRAG
-// =================================================================
-function initCoachDrag() {
-  const hdr = document.getElementById('coachHdr');
-  const coach = document.getElementById('coach');
-
-  hdr.addEventListener('mousedown', e => {
-    state.dragActive = true;
-    const r = coach.getBoundingClientRect();
-    state.dragOffX = e.clientX - r.left;
-    state.dragOffY = e.clientY - r.top;
-    coach.style.transition = 'none';
-    e.preventDefault();
-  });
-  document.addEventListener('mousemove', e => {
-    if (!state.dragActive) return;
-    const x = Math.max(0, Math.min(e.clientX - state.dragOffX, window.innerWidth - coach.offsetWidth));
-    const y = Math.max(0, Math.min(e.clientY - state.dragOffY, window.innerHeight - coach.offsetHeight));
-    coach.style.left = x + 'px';
-    coach.style.top = y + 'px';
-    coach.style.bottom = 'auto';
-    coach.style.right = 'auto';
-  });
-  document.addEventListener('mouseup', () => {
-    state.dragActive = false;
-    coach.style.transition = '';
-  });
-}
-
-function minimizeCoach() {
-  document.getElementById('coach').style.display = 'none';
-  document.getElementById('coachBubble').classList.add('show');
-  window.speechSynthesis?.cancel();
-}
-
-function maximizeCoach() {
-  document.getElementById('coach').style.display = 'flex';
-  document.getElementById('coachBubble').classList.remove('show');
-}
 
 // =================================================================
 //  TOAST
