@@ -3,1011 +3,1603 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>GA4 Simulator – SkillOS</title>
+<title>GA4 Mastery – SkillOS</title>
 <link href="https://fonts.googleapis.com/css2?family=Google+Sans:wght@400;500;600&family=Roboto:wght@300;400;500&display=swap" rel="stylesheet">
 <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
 <style>
+/* ============================================================
+   RESET & VARIABLES
+============================================================ */
 *{margin:0;padding:0;box-sizing:border-box}
 :root{
-  --sidebar-bg:#202124;--sidebar-w:240px;
-  --blue:#1a73e8;--blue-light:#e8f0fe;
-  --text:#202124;--text2:#5f6368;
-  --border:#dadce0;--bg:#f1f3f4;
-  --green:#34a853;--red:#ea4335;--yellow:#fbbc04;
-  --ai:#6c63ff;
+  --blue:#1a73e8;--blue-light:#e8f0fe;--blue-dark:#1557b0;
+  --green:#34a853;--red:#ea4335;--yellow:#fbbc04;--orange:#ff6d00;
+  --coach:#6c63ff;--coach-light:rgba(108,99,255,.1);
+  --text:#202124;--text2:#5f6368;--border:#dadce0;
+  --bg:#f1f3f4;--white:#fff;
+  --sidebar:#202124;
+  --step-active:#6c63ff;--step-done:#34a853;--step-pending:#dadce0;
 }
-body{font-family:'Roboto',sans-serif;background:var(--bg);color:var(--text);display:flex;height:100vh;overflow:hidden}
+body{font-family:'Roboto',sans-serif;background:var(--bg);color:var(--text);overflow:hidden;height:100vh;display:flex;flex-direction:column}
 
-/* SPOTLIGHT OVERLAY */
-.spotlight-overlay{
-  position:fixed;inset:0;z-index:500;pointer-events:none;
-  transition:opacity .3s;opacity:0;
+/* ============================================================
+   TOP BAR
+============================================================ */
+.topbar{
+  height:52px;background:var(--white);border-bottom:1px solid var(--border);
+  display:flex;align-items:center;gap:12px;padding:0 16px;
+  flex-shrink:0;z-index:50;
 }
-.spotlight-overlay.active{opacity:1}
-.spotlight-hole{
-  position:absolute;
-  border-radius:8px;
-  box-shadow:0 0 0 9999px rgba(0,0,0,.5);
-  border:2px solid var(--ai);
-  transition:all .4s cubic-bezier(.4,0,.2,1);
-  pointer-events:none;
-}
-.spotlight-label{
-  position:absolute;
-  background:var(--ai);color:#fff;
-  border-radius:8px;padding:8px 14px;
-  font-size:12px;font-weight:500;
-  white-space:nowrap;
-  box-shadow:0 4px 20px rgba(108,99,255,.4);
-  top:-40px;left:0;
-}
-
-/* SIDEBAR */
-.sidebar{width:var(--sidebar-w);min-width:var(--sidebar-w);background:var(--sidebar-bg);display:flex;flex-direction:column;overflow-y:auto;z-index:10}
-.sidebar-logo{display:flex;align-items:center;gap:8px;padding:14px 14px 8px;border-bottom:1px solid rgba(255,255,255,.1);margin-bottom:6px}
-.sidebar-logo-text{color:#fff;font-family:'Google Sans',sans-serif;font-size:13px;font-weight:500}
-.sidebar-logo-sub{color:rgba(255,255,255,.4);font-size:10px}
-.sidebar-label{color:rgba(255,255,255,.35);font-size:10px;font-weight:500;padding:6px 14px 3px;text-transform:uppercase;letter-spacing:.8px}
-.nav-item{display:flex;align-items:center;gap:10px;padding:9px 14px;color:rgba(255,255,255,.65);font-size:12px;cursor:pointer;border-radius:0 20px 20px 0;margin-right:6px;transition:background .15s,color .15s}
-.nav-item:hover{background:rgba(255,255,255,.08);color:#fff}
-.nav-item.active{background:rgba(26,115,232,.25);color:#8ab4f8}
-.nav-item svg{width:16px;height:16px;flex-shrink:0;opacity:.7}
-.nav-item.active svg{opacity:1}
-.nav-item.highlighted{
-  background:rgba(108,99,255,.3)!important;color:#c4b5fd!important;
-  box-shadow:0 0 0 2px rgba(108,99,255,.5);
-  animation:navPulse 1.5s infinite;
-}
-@keyframes navPulse{0%,100%{box-shadow:0 0 0 2px rgba(108,99,255,.5)}50%{box-shadow:0 0 0 4px rgba(108,99,255,.3)}}
-.back-home{display:flex;align-items:center;gap:6px;padding:8px 14px;color:rgba(255,255,255,.4);font-size:11px;cursor:pointer;text-decoration:none}
-.back-home:hover{color:rgba(255,255,255,.7)}
-
-/* MAIN */
-.main{flex:1;display:flex;flex-direction:column;overflow:hidden}
-.topbar{background:#fff;border-bottom:1px solid var(--border);display:flex;align-items:center;gap:10px;padding:0 20px;height:52px;flex-shrink:0}
-.topbar-title{font-family:'Google Sans',sans-serif;font-size:16px;font-weight:400;color:var(--text)}
+.topbar-back{color:var(--text2);font-size:12px;text-decoration:none;display:flex;align-items:center;gap:4px}
+.topbar-back:hover{color:var(--blue)}
+.topbar-divider{width:1px;height:20px;background:var(--border)}
+.topbar-phase{font-size:11px;color:var(--text2);font-weight:500}
+.topbar-lesson{font-size:13px;font-weight:500;color:var(--text)}
 .topbar-spacer{flex:1}
-.date-pill{display:flex;align-items:center;gap:5px;border:1px solid var(--border);border-radius:4px;padding:5px 10px;font-size:12px;cursor:pointer;background:#fff}
-.ai-tutor-btn{background:linear-gradient(135deg,#6c63ff,#8b5cf6);color:#fff;border:none;border-radius:18px;padding:7px 16px;font-size:12px;font-weight:500;cursor:pointer;display:flex;align-items:center;gap:5px;font-family:'Google Sans',sans-serif;transition:opacity .2s}
-.ai-tutor-btn:hover{opacity:.88}
-
-/* CONTENT */
-.content{flex:1;overflow-y:auto;padding:20px}
-
-/* CASE BANNER */
-.case-banner{
-  background:linear-gradient(135deg,rgba(108,99,255,.12),rgba(139,92,246,.08));
-  border:1px solid rgba(108,99,255,.25);
-  border-radius:12px;padding:14px 18px;margin-bottom:18px;
-  display:none;flex-wrap:wrap;gap:12px;align-items:center;
+.topbar-progress{display:flex;align-items:center;gap:8px;font-size:12px;color:var(--text2)}
+.progress-bar{width:120px;height:4px;background:var(--border);border-radius:2px;overflow:hidden}
+.progress-fill{height:100%;background:var(--coach);border-radius:2px;transition:width .4s}
+.btn-john{
+  background:linear-gradient(135deg,#6c63ff,#8b5cf6);
+  color:#fff;border:none;border-radius:16px;
+  padding:6px 14px;font-size:11px;font-weight:600;
+  cursor:pointer;font-family:'Roboto',sans-serif;
+  letter-spacing:.3px;
 }
-.case-banner.active{display:flex}
-.case-badge{background:var(--ai);color:#fff;border-radius:6px;padding:3px 10px;font-size:11px;font-weight:600;flex-shrink:0}
-.case-title{font-size:13px;font-weight:500;flex:1}
-.case-progress{display:flex;gap:4px;align-items:center}
-.case-step-dot{width:8px;height:8px;border-radius:50%;background:rgba(108,99,255,.3);transition:background .3s}
-.case-step-dot.done{background:var(--ai)}
-.case-step-dot.current{background:#fff;box-shadow:0 0 0 2px var(--ai)}
+.btn-audio{
+  width:32px;height:32px;border-radius:50%;
+  background:var(--coach-light);border:1px solid rgba(108,99,255,.3);
+  color:var(--coach);cursor:pointer;font-size:14px;
+  display:flex;align-items:center;justify-content:center;
+}
+.btn-audio.playing{background:var(--coach);color:#fff}
 
-/* METRICS */
-.metrics-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:14px;margin-bottom:18px}
-.metric-card{background:#fff;border:1px solid var(--border);border-radius:8px;padding:16px;cursor:pointer;transition:box-shadow .2s,border-color .2s;position:relative}
-.metric-card:hover{box-shadow:0 1px 6px rgba(0,0,0,.1)}
-.metric-card.highlighted{border-color:var(--ai)!important;box-shadow:0 0 0 3px rgba(108,99,255,.2)!important;animation:cardPulse 2s infinite}
-@keyframes cardPulse{0%,100%{box-shadow:0 0 0 3px rgba(108,99,255,.2)}50%{box-shadow:0 0 0 6px rgba(108,99,255,.1)}}
+/* ============================================================
+   MAIN LAYOUT
+============================================================ */
+.app{display:flex;flex:1;overflow:hidden}
+
+/* ============================================================
+   LEFT NAV
+============================================================ */
+.leftnav{
+  width:220px;min-width:220px;background:var(--sidebar);
+  display:flex;flex-direction:column;overflow-y:auto;flex-shrink:0;
+}
+.leftnav-logo{
+  padding:14px 14px 10px;border-bottom:1px solid rgba(255,255,255,.08);
+  display:flex;align-items:center;gap:8px;
+}
+.leftnav-logo svg{width:22px;height:22px;flex-shrink:0}
+.leftnav-logo-text{color:#fff;font-size:12px;font-weight:500;font-family:'Google Sans',sans-serif}
+.phase-section{padding:8px 0}
+.phase-label{
+  font-size:9px;font-weight:600;letter-spacing:1.2px;text-transform:uppercase;
+  color:rgba(255,255,255,.3);padding:6px 14px 3px;
+}
+.module-item{
+  display:flex;align-items:center;gap:8px;
+  padding:8px 14px;color:rgba(255,255,255,.55);
+  font-size:11px;cursor:pointer;
+  border-radius:0 16px 16px 0;margin-right:6px;
+  transition:background .15s,color .15s;position:relative;
+}
+.module-item:hover{background:rgba(255,255,255,.07);color:rgba(255,255,255,.85)}
+.module-item.active{background:rgba(108,99,255,.25);color:#c4b5fd}
+.module-item.done{color:rgba(52,168,83,.8)}
+.module-item.done::after{content:'✓';position:absolute;right:10px;font-size:10px;color:var(--green)}
+.module-item.locked{color:rgba(255,255,255,.25);cursor:not-allowed}
+.module-dot{
+  width:6px;height:6px;border-radius:50%;flex-shrink:0;
+  background:rgba(255,255,255,.2);
+}
+.module-item.active .module-dot{background:var(--coach)}
+.module-item.done .module-dot{background:var(--green)}
+
+/* ============================================================
+   MAIN CONTENT
+============================================================ */
+.main{flex:1;display:flex;flex-direction:column;overflow:hidden;position:relative}
+
+/* ============================================================
+   DASHBOARD (the simulated GA4 interface)
+============================================================ */
+.dashboard{
+  flex:1;overflow-y:auto;padding:16px;
+  position:relative;
+}
+
+/* Metric cards */
+.metrics-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:12px;margin-bottom:16px}
+.metric-card{
+  background:var(--white);border:2px solid var(--border);
+  border-radius:8px;padding:14px;cursor:pointer;
+  transition:all .2s;position:relative;
+}
+.metric-card:hover{box-shadow:0 2px 8px rgba(0,0,0,.1)}
+.metric-card.highlighted{
+  border-color:var(--coach)!important;
+  box-shadow:0 0 0 4px rgba(108,99,255,.15)!important;
+  animation:pulse-card 2s infinite;
+}
+.metric-card.step-target{
+  border-color:var(--coach);
+  box-shadow:0 0 0 4px rgba(108,99,255,.2);
+}
+@keyframes pulse-card{
+  0%,100%{box-shadow:0 0 0 4px rgba(108,99,255,.15)}
+  50%{box-shadow:0 0 0 8px rgba(108,99,255,.05)}
+}
 .metric-card.correct{border-color:var(--green)!important;background:rgba(52,168,83,.04)}
-.metric-card.wrong{border-color:var(--red)!important;animation:shake .3s}
-@keyframes shake{0%,100%{transform:translateX(0)}25%{transform:translateX(-6px)}75%{transform:translateX(6px)}}
-.metric-label{font-size:11px;color:var(--text2);margin-bottom:6px;font-weight:500}
-.metric-value{font-size:24px;font-family:'Google Sans',sans-serif;font-weight:400}
+.metric-label{font-size:11px;color:var(--text2);font-weight:500;margin-bottom:6px}
+.metric-value{font-size:22px;font-family:'Google Sans',sans-serif;font-weight:400;color:var(--text)}
 .metric-change{font-size:11px;margin-top:4px}
 .metric-change.up{color:var(--green)}.metric-change.down{color:var(--red)}
+.metric-info-btn{
+  position:absolute;top:8px;right:8px;
+  width:16px;height:16px;border-radius:50%;
+  background:var(--border);color:var(--text2);
+  font-size:9px;font-weight:700;cursor:pointer;
+  display:flex;align-items:center;justify-content:center;
+  transition:background .2s;
+}
+.metric-info-btn:hover{background:var(--coach);color:#fff}
 
-/* CHART */
-.chart-section{background:#fff;border:1px solid var(--border);border-radius:8px;padding:18px;margin-bottom:18px}
-.chart-section.highlighted{border-color:var(--ai);box-shadow:0 0 0 3px rgba(108,99,255,.15)}
-.section-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:16px}
+/* Chart sections */
+.chart-section{
+  background:var(--white);border:2px solid var(--border);
+  border-radius:8px;padding:16px;margin-bottom:16px;
+}
+.chart-section.highlighted{border-color:var(--coach);box-shadow:0 0 0 4px rgba(108,99,255,.1)}
+.section-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:14px}
 .section-title{font-family:'Google Sans',sans-serif;font-size:13px;font-weight:500}
-.chart-wrap{position:relative;height:200px}
-.chart-tabs{display:flex;border:1px solid var(--border);border-radius:4px;overflow:hidden}
-.chart-tab{padding:5px 12px;font-size:11px;cursor:pointer;background:#fff;border:none;color:var(--text2)}
-.chart-tab.active{background:var(--blue-light);color:var(--blue);font-weight:500}
+.chart-wrap{height:180px;position:relative}
 
-/* TABLE */
+/* Tables */
 .data-table{width:100%;border-collapse:collapse;font-size:12px}
-.data-table th{text-align:left;padding:7px 10px;color:var(--text2);font-weight:500;font-size:11px;border-bottom:2px solid var(--border)}
-.data-table td{padding:8px 10px;border-bottom:1px solid var(--border)}
+.data-table th{text-align:left;padding:6px 10px;color:var(--text2);font-weight:500;font-size:11px;border-bottom:2px solid var(--border)}
+.data-table td{padding:7px 10px;border-bottom:1px solid var(--border)}
 .data-table tr:last-child td{border-bottom:none}
-.data-table tr.highlighted-row td{background:rgba(108,99,255,.06);border-left:3px solid var(--ai);cursor:pointer}
-.data-table tr.correct-row td{background:rgba(52,168,83,.06);border-left:3px solid var(--green)}
-.data-table tr.wrong-row td{background:rgba(234,67,53,.06);animation:shake .3s}
+.data-table tr.highlighted td{background:var(--coach-light);border-left:3px solid var(--coach);cursor:pointer}
+.data-table tr.step-target td{background:var(--coach-light);border-left:3px solid var(--coach)}
 .data-table tr:hover td{background:#f8f9fa;cursor:pointer}
-.channel-dot{display:inline-block;width:7px;height:7px;border-radius:50%;margin-right:5px}
+.channel-dot{display:inline-block;width:6px;height:6px;border-radius:50%;margin-right:5px}
 
-/* TWO COL */
-.two-col{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:18px}
+/* Two col */
+.two-col{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:16px}
 
-/* AI PANEL */
-.ai-panel{
-  position:fixed;right:-400px;top:0;bottom:0;width:380px;
-  background:#fff;border-left:1px solid var(--border);
-  display:flex;flex-direction:column;z-index:1000;
-  transition:right .3s cubic-bezier(.4,0,.2,1);
-  box-shadow:-4px 0 30px rgba(0,0,0,.08);
+/* Funnel */
+.funnel-bar{
+  background:#e8f0fe;border-radius:4px;height:26px;
+  margin-bottom:6px;position:relative;display:flex;
+  align-items:center;padding:0 10px;cursor:pointer;
+  transition:transform .15s;
 }
-.ai-panel.open{right:0}
-.ai-header{
-  background:linear-gradient(135deg,#6c63ff,#8b5cf6);
-  color:#fff;padding:14px 16px;
-  display:flex;align-items:center;gap:8px;flex-shrink:0;
-}
-.ai-header h3{font-family:'Google Sans',sans-serif;font-size:14px;flex:1}
-.ai-mode-badge{background:rgba(255,255,255,.2);border-radius:12px;padding:2px 10px;font-size:10px;font-weight:600;letter-spacing:.5px}
-.ai-close{background:none;border:none;color:rgba(255,255,255,.7);font-size:18px;cursor:pointer}
+.funnel-bar:hover{transform:scaleX(1.01)}
+.funnel-bar.highlighted{outline:2px solid var(--coach);outline-offset:2px}
+.funnel-fill{position:absolute;left:0;top:0;bottom:0;background:var(--blue);border-radius:4px;opacity:.55}
+.funnel-label{position:relative;z-index:1;font-size:11px;font-weight:500}
+.funnel-val{position:relative;z-index:1;margin-left:auto;font-size:10px;color:var(--text2)}
 
-/* CASE SELECTOR */
-.case-selector{padding:12px;border-bottom:1px solid var(--border);flex-shrink:0}
-.case-selector-title{font-size:11px;font-weight:600;color:var(--text2);text-transform:uppercase;letter-spacing:.5px;margin-bottom:8px}
-.case-list{display:flex;flex-direction:column;gap:6px}
-.case-item{
-  border:1px solid var(--border);border-radius:8px;padding:10px 12px;cursor:pointer;
-  transition:border-color .2s,background .2s;
-}
-.case-item:hover{border-color:rgba(108,99,255,.3);background:rgba(108,99,255,.04)}
-.case-item.active{border-color:var(--ai);background:rgba(108,99,255,.06)}
-.case-item-title{font-size:12px;font-weight:500;margin-bottom:2px}
-.case-item-desc{font-size:11px;color:var(--text2);line-height:1.4}
-.case-item-difficulty{font-size:10px;font-weight:600;margin-top:4px}
-.beginner{color:var(--green)}.intermediate{color:var(--yellow)}.advanced{color:var(--red)}
+/* Realtime */
+.rt-number{font-size:52px;font-family:'Google Sans',sans-serif;line-height:1}
+.pulse-dot{display:inline-block;width:7px;height:7px;background:var(--green);border-radius:50%;animation:pulse-anim 1.5s infinite}
+@keyframes pulse-anim{0%,100%{opacity:1}50%{opacity:.3}}
 
-/* MESSAGES */
-.ai-messages{flex:1;overflow-y:auto;padding:12px;display:flex;flex-direction:column;gap:10px}
-.msg{padding:10px 12px;border-radius:10px;font-size:12px;line-height:1.6;max-width:94%}
-.msg.bot{background:#f8f9fa;color:var(--text);align-self:flex-start;border-radius:4px 10px 10px 10px}
-.msg.user{background:var(--ai);color:#fff;align-self:flex-end;border-radius:10px 4px 10px 10px}
-.msg.system{background:rgba(52,168,83,.08);border:1px solid rgba(52,168,83,.2);color:var(--text);align-self:stretch;border-radius:8px;text-align:center;font-size:11px}
-.msg.error-msg{background:rgba(234,67,53,.08);border:1px solid rgba(234,67,53,.2);color:var(--red);align-self:stretch;border-radius:8px}
-.msg strong{color:var(--ai)}.msg.user strong{color:#c4b5fd}
-.msg.bot em{color:var(--text2);font-style:normal;font-size:11px}
-.typing-wrap{display:flex;gap:4px;align-items:center;padding:8px 0}
-.typing-dot{width:5px;height:5px;background:var(--text2);border-radius:50%;animation:bounce .8s infinite}
-.typing-dot:nth-child(2){animation-delay:.15s}.typing-dot:nth-child(3){animation-delay:.3s}
-@keyframes bounce{0%,100%{transform:translateY(0)}50%{transform:translateY(-5px)}}
-
-/* QUICK ASKS */
-.quick-asks{padding:0 12px 8px;display:flex;flex-wrap:wrap;gap:5px;flex-shrink:0}
-.qchip{border:1px solid rgba(108,99,255,.3);color:var(--ai);background:#fff;border-radius:12px;padding:3px 10px;font-size:10px;cursor:pointer;transition:background .15s;font-weight:500}
-.qchip:hover{background:rgba(108,99,255,.06)}
-
-/* INPUT */
-.ai-input-area{padding:10px;border-top:1px solid var(--border);display:flex;gap:6px;flex-shrink:0}
-.ai-input{flex:1;border:1px solid var(--border);border-radius:20px;padding:8px 14px;font-size:12px;outline:none;font-family:'Roboto',sans-serif;resize:none}
-.ai-input:focus{border-color:var(--ai)}
-.ai-send{background:var(--ai);color:#fff;border:none;border-radius:50%;width:34px;height:34px;cursor:pointer;font-size:16px;display:flex;align-items:center;justify-content:center;flex-shrink:0;transition:opacity .2s}
-.ai-send:disabled{background:#ccc;cursor:default}
-.ai-send:hover:not(:disabled){opacity:.85}
-
-/* SUBVIEWS */
+/* Subviews */
 .subview{display:none}.subview.active{display:block}
 
-/* SCROLLBAR */
-::-webkit-scrollbar{width:5px}::-webkit-scrollbar-thumb{background:#dadce0;border-radius:3px}
+/* Nav items in sidebar */
+.nav-item{
+  display:flex;align-items:center;gap:8px;
+  padding:8px 14px;color:rgba(255,255,255,.6);
+  font-size:11px;cursor:pointer;
+  border-radius:0 16px 16px 0;margin-right:6px;
+  transition:background .15s,color .15s;
+}
+.nav-item:hover{background:rgba(255,255,255,.07);color:#fff}
+.nav-item.active{background:rgba(26,115,232,.2);color:#8ab4f8}
+.nav-item.highlighted-nav{
+  background:rgba(108,99,255,.3)!important;
+  color:#c4b5fd!important;
+  animation:nav-pulse 1.5s infinite;
+}
+@keyframes nav-pulse{0%,100%{box-shadow:inset 0 0 0 2px rgba(108,99,255,.5)}50%{box-shadow:inset 0 0 0 2px rgba(108,99,255,.2)}}
+.nav-item svg{width:14px;height:14px;flex-shrink:0;opacity:.7}
+.nav-item.active svg,.nav-item.highlighted-nav svg{opacity:1}
 
-/* FUNNEL */
-.funnel-bar{background:#e8f0fe;border-radius:4px;height:28px;margin-bottom:7px;position:relative;display:flex;align-items:center;padding:0 10px;cursor:pointer}
-.funnel-fill{position:absolute;left:0;top:0;bottom:0;background:var(--blue);border-radius:4px;opacity:.6}
-.funnel-label{position:relative;z-index:1;font-size:12px;font-weight:500}
-.funnel-val{position:relative;z-index:1;margin-left:auto;font-size:11px;color:var(--text2)}
+/* ============================================================
+   STEP PANEL (bottom of dashboard)
+============================================================ */
+.step-panel{
+  flex-shrink:0;background:var(--white);
+  border-top:2px solid var(--border);
+  padding:12px 16px;
+}
+.step-panel-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:10px}
+.step-panel-title{font-size:11px;font-weight:600;color:var(--text2);text-transform:uppercase;letter-spacing:.5px}
+.steps-row{display:flex;gap:8px;overflow-x:auto;padding-bottom:4px}
+.step-btn{
+  flex-shrink:0;display:flex;align-items:center;gap:6px;
+  border:2px solid var(--step-pending);border-radius:20px;
+  padding:6px 14px;font-size:11px;font-weight:500;
+  cursor:pointer;background:var(--white);color:var(--text2);
+  transition:all .2s;white-space:nowrap;
+}
+.step-btn.active{
+  border-color:var(--step-active);color:var(--step-active);
+  background:var(--coach-light);
+  box-shadow:0 2px 8px rgba(108,99,255,.2);
+  animation:step-pulse 2s infinite;
+}
+@keyframes step-pulse{0%,100%{box-shadow:0 2px 8px rgba(108,99,255,.2)}50%{box-shadow:0 4px 16px rgba(108,99,255,.35)}}
+.step-btn.done{border-color:var(--step-done);color:var(--step-done);background:rgba(52,168,83,.06)}
+.step-btn.locked{opacity:.4;cursor:not-allowed}
+.step-num{
+  width:18px;height:18px;border-radius:50%;
+  background:currentColor;color:var(--white);
+  font-size:9px;font-weight:700;
+  display:flex;align-items:center;justify-content:center;
+  flex-shrink:0;
+}
+.step-btn.active .step-num{background:var(--step-active)}
+.step-btn.done .step-num{background:var(--step-done)}
 
-/* REALTIME */
-.rt-big{font-size:56px;font-family:'Google Sans',sans-serif;line-height:1}
-.pulse{display:inline-block;width:7px;height:7px;background:var(--green);border-radius:50%;animation:pulse 1.5s infinite}
-@keyframes pulse{0%,100%{opacity:1}50%{opacity:.3}}
+/* ============================================================
+   COACH WIDGET (draggable, resizable)
+============================================================ */
+.coach{
+  position:fixed;bottom:80px;right:16px;
+  width:300px;min-width:200px;max-width:500px;
+  min-height:120px;
+  background:var(--white);
+  border:2px solid var(--coach);
+  border-radius:16px;
+  box-shadow:0 8px 32px rgba(108,99,255,.2);
+  z-index:200;
+  display:flex;flex-direction:column;
+  overflow:hidden;
+  resize:both;
+}
+.coach-header{
+  background:linear-gradient(135deg,#6c63ff,#8b5cf6);
+  padding:8px 12px;display:flex;align-items:center;gap:8px;
+  cursor:grab;flex-shrink:0;
+  user-select:none;
+}
+.coach-header:active{cursor:grabbing}
+.coach-avatar{
+  width:28px;height:28px;border-radius:50%;
+  background:rgba(255,255,255,.2);
+  display:flex;align-items:center;justify-content:center;
+  font-size:14px;flex-shrink:0;
+}
+.coach-name{color:#fff;font-size:11px;font-weight:600;flex:1}
+.coach-minimize{
+  color:rgba(255,255,255,.7);background:none;border:none;
+  cursor:pointer;font-size:14px;padding:2px 4px;
+}
+.coach-minimize:hover{color:#fff}
+.coach-body{padding:10px 12px;flex:1;overflow-y:auto}
+.coach-msg{
+  font-size:12px;line-height:1.6;color:var(--text);
+  margin-bottom:8px;
+}
+.coach-msg strong{color:var(--coach)}
+.coach-action{
+  background:var(--coach);color:#fff;
+  border:none;border-radius:8px;padding:7px 14px;
+  font-size:11px;font-weight:600;cursor:pointer;
+  font-family:'Roboto',sans-serif;
+  transition:opacity .2s;width:100%;margin-top:4px;
+}
+.coach-action:hover{opacity:.88}
+.coach-action.secondary{
+  background:var(--coach-light);color:var(--coach);
+  margin-top:6px;
+}
+.coach-minimized{
+  position:fixed;bottom:80px;right:16px;z-index:200;
+  background:linear-gradient(135deg,#6c63ff,#8b5cf6);
+  border-radius:50px;padding:8px 16px;
+  color:#fff;font-size:12px;font-weight:600;
+  cursor:pointer;box-shadow:0 4px 16px rgba(108,99,255,.3);
+  display:none;align-items:center;gap:6px;
+}
+.coach-minimized.visible{display:flex}
 
-/* SUCCESS TOAST */
+/* Resize handle */
+.resize-handle{
+  position:absolute;bottom:0;right:0;
+  width:16px;height:16px;cursor:se-resize;
+  background:linear-gradient(135deg,transparent 50%,rgba(108,99,255,.3) 50%);
+  border-radius:0 0 14px 0;
+}
+
+/* ============================================================
+   SPOTLIGHT OVERLAY
+============================================================ */
+.spotlight{
+  position:fixed;inset:0;z-index:150;
+  pointer-events:none;opacity:0;transition:opacity .3s;
+}
+.spotlight.active{opacity:1}
+.spotlight-hole{
+  position:absolute;border-radius:8px;
+  box-shadow:0 0 0 9999px rgba(0,0,0,.45);
+  border:2px solid var(--coach);
+  transition:all .4s cubic-bezier(.4,0,.2,1);
+}
+.spotlight-arrow{
+  position:absolute;background:var(--coach);color:#fff;
+  border-radius:8px;padding:6px 12px;font-size:11px;font-weight:600;
+  white-space:nowrap;pointer-events:none;
+  box-shadow:0 4px 16px rgba(108,99,255,.4);
+}
+
+/* ============================================================
+   TOAST NOTIFICATIONS
+============================================================ */
 .toast{
-  position:fixed;bottom:80px;left:50%;transform:translateX(-50%) translateY(20px);
-  background:var(--green);color:#fff;border-radius:10px;padding:10px 20px;
-  font-size:13px;font-weight:500;z-index:2000;opacity:0;
-  transition:opacity .3s,transform .3s;pointer-events:none;
+  position:fixed;top:70px;left:50%;transform:translateX(-50%) translateY(-10px);
+  background:var(--text);color:#fff;border-radius:8px;
+  padding:8px 20px;font-size:12px;font-weight:500;
+  z-index:500;opacity:0;transition:all .3s;pointer-events:none;
+  white-space:nowrap;
 }
 .toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
+.toast.success{background:var(--green)}
+.toast.error{background:var(--red)}
+.toast.info{background:var(--coach)}
+
+/* ============================================================
+   MICRO QUESTION
+============================================================ */
+.micro-q{
+  background:linear-gradient(135deg,rgba(108,99,255,.08),rgba(139,92,246,.05));
+  border:1px solid rgba(108,99,255,.2);border-radius:12px;
+  padding:14px 16px;margin-bottom:16px;
+}
+.micro-q-label{font-size:10px;font-weight:700;color:var(--coach);text-transform:uppercase;letter-spacing:.5px;margin-bottom:6px}
+.micro-q-text{font-size:13px;font-weight:500;margin-bottom:10px}
+.micro-q-options{display:flex;gap:6px;flex-wrap:wrap}
+.micro-q-opt{
+  border:1px solid var(--border);border-radius:20px;
+  padding:5px 14px;font-size:11px;cursor:pointer;
+  background:var(--white);color:var(--text);
+  transition:all .15s;font-weight:500;
+}
+.micro-q-opt:hover{border-color:var(--coach);color:var(--coach)}
+.micro-q-opt.correct{border-color:var(--green);background:rgba(52,168,83,.08);color:var(--green)}
+.micro-q-opt.wrong{border-color:var(--red);background:rgba(234,67,53,.06);color:var(--red);animation:shake .3s}
+@keyframes shake{0%,100%{transform:translateX(0)}25%{transform:translateX(-4px)}75%{transform:translateX(4px)}}
+
+/* ============================================================
+   MODULE TEST
+============================================================ */
+.test-panel{
+  position:fixed;inset:0;background:rgba(0,0,0,.5);
+  z-index:600;display:none;align-items:center;justify-content:center;
+}
+.test-panel.open{display:flex}
+.test-box{
+  background:var(--white);border-radius:16px;
+  width:560px;max-width:90vw;max-height:80vh;
+  overflow-y:auto;padding:28px;
+}
+.test-title{font-family:'Google Sans',sans-serif;font-size:20px;font-weight:500;margin-bottom:4px}
+.test-sub{font-size:13px;color:var(--text2);margin-bottom:24px}
+.test-q{margin-bottom:20px;padding-bottom:20px;border-bottom:1px solid var(--border)}
+.test-q:last-child{border-bottom:none;margin-bottom:0}
+.test-q-text{font-size:13px;font-weight:500;margin-bottom:10px}
+.test-q-opts{display:flex;flex-direction:column;gap:6px}
+.test-opt{
+  border:1px solid var(--border);border-radius:8px;
+  padding:8px 14px;font-size:12px;cursor:pointer;
+  transition:all .15s;
+}
+.test-opt:hover{border-color:var(--coach);background:var(--coach-light)}
+.test-opt.correct{border-color:var(--green);background:rgba(52,168,83,.08);color:var(--green)}
+.test-opt.wrong{border-color:var(--red);background:rgba(234,67,53,.06)}
+.test-score{
+  text-align:center;padding:20px;
+  font-family:'Google Sans',sans-serif;
+}
+.test-score-num{font-size:52px;font-weight:700;color:var(--coach)}
+.test-btns{display:flex;gap:8px;justify-content:center;margin-top:16px}
+.btn-primary{background:var(--coach);color:#fff;border:none;border-radius:8px;padding:10px 24px;font-size:13px;font-weight:500;cursor:pointer;font-family:'Roboto',sans-serif}
+.btn-secondary{background:var(--white);color:var(--text);border:1px solid var(--border);border-radius:8px;padding:10px 24px;font-size:13px;cursor:pointer;font-family:'Roboto',sans-serif}
+
+/* ============================================================
+   PROF. JOHN PANEL
+============================================================ */
+.john-panel{
+  position:fixed;inset:0;background:rgba(0,0,0,.5);
+  z-index:600;display:none;align-items:flex-end;justify-content:flex-end;
+  padding:16px;
+}
+.john-panel.open{display:flex}
+.john-box{
+  width:380px;height:70vh;background:var(--white);
+  border-radius:16px;display:flex;flex-direction:column;
+  box-shadow:0 16px 48px rgba(0,0,0,.2);
+  overflow:hidden;
+}
+.john-header{
+  background:linear-gradient(135deg,#1a1a2e,#16213e);
+  padding:14px 16px;display:flex;align-items:center;gap:10px;
+}
+.john-avatar{font-size:24px}
+.john-info{flex:1}
+.john-name{color:#fff;font-size:13px;font-weight:600}
+.john-title{color:rgba(255,255,255,.5);font-size:10px}
+.john-close{color:rgba(255,255,255,.6);background:none;border:none;font-size:18px;cursor:pointer}
+.john-messages{flex:1;overflow-y:auto;padding:12px;display:flex;flex-direction:column;gap:8px}
+.john-msg{padding:8px 12px;border-radius:10px;font-size:12px;line-height:1.6;max-width:90%}
+.john-msg.bot{background:#f8f9fa;align-self:flex-start;border-radius:4px 10px 10px 10px}
+.john-msg.user{background:var(--blue);color:#fff;align-self:flex-end;border-radius:10px 4px 10px 10px}
+.john-typing{display:flex;gap:3px;padding:8px 12px;background:#f8f9fa;border-radius:4px 10px 10px 10px;width:fit-content}
+.john-dot{width:5px;height:5px;background:var(--text2);border-radius:50%;animation:bounce .8s infinite}
+.john-dot:nth-child(2){animation-delay:.15s}.john-dot:nth-child(3){animation-delay:.3s}
+@keyframes bounce{0%,100%{transform:translateY(0)}50%{transform:translateY(-5px)}}
+.john-input-area{padding:10px;border-top:1px solid var(--border);display:flex;gap:6px}
+.john-input{flex:1;border:1px solid var(--border);border-radius:20px;padding:8px 14px;font-size:12px;outline:none;font-family:'Roboto',sans-serif}
+.john-input:focus{border-color:var(--blue)}
+.john-send{width:34px;height:34px;border-radius:50%;background:var(--blue);color:#fff;border:none;cursor:pointer;font-size:14px;display:flex;align-items:center;justify-content:center}
+
+/* ============================================================
+   CASE BANNER
+============================================================ */
+.case-banner{
+  background:linear-gradient(135deg,rgba(108,99,255,.1),rgba(26,115,232,.06));
+  border:1px solid rgba(108,99,255,.2);border-radius:10px;
+  padding:10px 14px;margin-bottom:14px;
+  display:flex;align-items:center;gap:10px;
+}
+.case-badge{background:var(--coach);color:#fff;border-radius:5px;padding:2px 8px;font-size:10px;font-weight:700;flex-shrink:0}
+.case-text{font-size:12px;font-weight:500;flex:1;line-height:1.4}
+.case-phase{font-size:10px;color:var(--text2);flex-shrink:0}
+
+/* Scrollbar */
+::-webkit-scrollbar{width:5px;height:5px}
+::-webkit-scrollbar-thumb{background:#dadce0;border-radius:3px}
+
+/* ============================================================
+   RECAP BOX
+============================================================ */
+.recap{
+  background:rgba(52,168,83,.06);border:1px solid rgba(52,168,83,.2);
+  border-radius:10px;padding:14px 16px;margin-bottom:16px;
+}
+.recap-title{font-size:11px;font-weight:700;color:var(--green);text-transform:uppercase;letter-spacing:.5px;margin-bottom:8px}
+.recap-item{font-size:12px;color:var(--text);margin-bottom:4px;display:flex;gap:6px}
+.recap-item::before{content:'✓';color:var(--green);font-weight:700;flex-shrink:0}
 </style>
 </head>
 <body>
 
-<!-- SPOTLIGHT -->
-<div class="spotlight-overlay" id="spotlight">
-  <div class="spotlight-hole" id="spotlightHole">
-    <div class="spotlight-label" id="spotlightLabel"></div>
-  </div>
+<!-- ============================================================
+     SPOTLIGHT
+============================================================ -->
+<div class="spotlight" id="spotlight">
+  <div class="spotlight-hole" id="spotlightHole"></div>
+  <div class="spotlight-arrow" id="spotlightArrow"></div>
 </div>
 
-<!-- SUCCESS TOAST -->
+<!-- ============================================================
+     TOAST
+============================================================ -->
 <div class="toast" id="toast"></div>
 
-<!-- SIDEBAR -->
-<nav class="sidebar">
-  <a class="back-home" href="../index.html">← SkillOS Home</a>
-  <div class="sidebar-logo">
-    <svg width="24" height="24" viewBox="0 0 192 192"><path d="M96 0C43 0 0 43 0 96s43 96 96 96 96-43 96-96S149 0 96 0z" fill="#EA4335"/><path d="M96 0v96l68 68C185 146 192 122 192 96 192 43 149 0 96 0z" fill="#FBBC04"/><path d="M96 96l68 68C146 185 122 192 96 192 70 192 46 185 28 164l68-68z" fill="#34A853"/><path d="M28 164C10 146 0 122 0 96s10-50 28-68l68 68-68 68z" fill="#4285F4"/></svg>
-    <div><div class="sidebar-logo-text">Analytics</div><div class="sidebar-logo-sub">SkillOS Simulator</div></div>
+<!-- ============================================================
+     TOP BAR
+============================================================ -->
+<div class="topbar">
+  <a class="topbar-back" href="../index.html">← SkillOS</a>
+  <div class="topbar-divider"></div>
+  <div class="topbar-phase" id="topPhase">Phase 1</div>
+  <div class="topbar-divider"></div>
+  <div class="topbar-lesson" id="topLesson">First Contact with GA4</div>
+  <div class="topbar-spacer"></div>
+  <div class="topbar-progress">
+    <span id="progressText">0 / 7</span>
+    <div class="progress-bar"><div class="progress-fill" id="progressFill" style="width:0%"></div></div>
+  </div>
+  <button class="btn-audio" id="audioBtn" onclick="toggleAudio()" title="Play/Pause coach audio">🔊</button>
+  <button class="btn-john" onclick="openJohn()">Ask Prof. John</button>
+</div>
+
+<!-- ============================================================
+     APP
+============================================================ -->
+<div class="app">
+
+<!-- LEFT NAV -->
+<nav class="leftnav" id="leftnav">
+  <div class="leftnav-logo">
+    <svg viewBox="0 0 192 192"><path d="M96 0C43 0 0 43 0 96s43 96 96 96 96-43 96-96S149 0 96 0z" fill="#EA4335"/><path d="M96 0v96l68 68C185 146 192 122 192 96 192 43 149 0 96 0z" fill="#FBBC04"/><path d="M96 96l68 68C146 185 122 192 96 192 70 192 46 185 28 164l68-68z" fill="#34A853"/><path d="M28 164C10 146 0 122 0 96s10-50 28-68l68 68-68 68z" fill="#4285F4"/></svg>
+    <div class="leftnav-logo-text">GA4 Mastery</div>
   </div>
 
-  <div style="padding:4px 0">
-    <div class="sidebar-label">Reports</div>
-    <div class="nav-item active" id="nav-home" onclick="setView('home',this)">
-      <svg viewBox="0 0 24 24" fill="currentColor"><path d="M10 20v-6h4v6h5v-8h3L12 3 2 12h3v8z"/></svg>Home
+  <!-- PHASE 1 -->
+  <div class="phase-section">
+    <div class="phase-label">Phase 1 · First Contact</div>
+    <div class="module-item active" id="mod-1-1" onclick="loadModule('1-1')">
+      <div class="module-dot"></div>What is GA4?
     </div>
-    <div class="nav-item" id="nav-realtime" onclick="setView('realtime',this)">
-      <svg viewBox="0 0 24 24" fill="currentColor"><circle cx="12" cy="12" r="8" fill="none" stroke="currentColor" stroke-width="2"/><path d="M12 7v5l3 3"/></svg>Realtime
+    <div class="module-item" id="mod-1-2" onclick="loadModule('1-2')">
+      <div class="module-dot"></div>The Dashboard
     </div>
-    <div class="nav-item" id="nav-acquisition" onclick="setView('acquisition',this)">
-      <svg viewBox="0 0 24 24" fill="currentColor"><path d="M16 6l2.29 2.29-4.88 4.88-4-4L2 16.59 3.41 18l6-6 4 4 6.3-6.29L22 12V6z"/></svg>Acquisition
-    </div>
-    <div class="nav-item" id="nav-engagement" onclick="setView('engagement',this)">
-      <svg viewBox="0 0 24 24" fill="currentColor"><path d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm-5 14H7v-2h7v2zm3-4H7v-2h10v2zm0-4H7V7h10v2z"/></svg>Engagement
-    </div>
-    <div class="nav-item" id="nav-monetization" onclick="setView('monetization',this)">
-      <svg viewBox="0 0 24 24" fill="currentColor"><path d="M11.8 10.9c-2.27-.59-3-1.2-3-2.15 0-1.09 1.01-1.85 2.7-1.85 1.78 0 2.44.85 2.5 2.1h2.21c-.07-1.72-1.12-3.3-3.21-3.81V3h-3v2.16c-1.94.42-3.5 1.68-3.5 3.61 0 2.31 1.91 3.46 4.7 4.13 2.5.6 3 1.48 3 2.41 0 .69-.49 1.79-2.7 1.79-2.06 0-2.87-.92-2.98-2.1h-2.2c.12 2.19 1.76 3.42 3.68 3.83V21h3v-2.15c1.95-.37 3.5-1.5 3.5-3.55 0-2.84-2.43-3.81-4.7-4.4z"/></svg>Monetization
-    </div>
-    <div class="nav-item" id="nav-retention" onclick="setView('retention',this)">
-      <svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm.5 15H11v-6l5.25 3.15-.75 1.23-4.5-2.67V17z" fill="none" stroke="currentColor" stroke-width="1.5"/><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2z" fill="none" stroke="currentColor" stroke-width="2"/></svg>Retention
+    <div class="module-item locked" id="mod-1-3">
+      <div class="module-dot"></div>Your First Report
     </div>
   </div>
+
+  <!-- PHASE 2 -->
+  <div class="phase-section">
+    <div class="phase-label">Phase 2 · Tracking</div>
+    <div class="module-item locked" id="mod-2-1">
+      <div class="module-dot"></div>Events & Hits
+    </div>
+    <div class="module-item locked" id="mod-2-2">
+      <div class="module-dot"></div>Users vs Sessions
+    </div>
+    <div class="module-item locked" id="mod-2-3">
+      <div class="module-dot"></div>Conversions Setup
+    </div>
+  </div>
+
+  <!-- PHASE 3 -->
+  <div class="phase-section">
+    <div class="phase-label">Phase 3 · Behavior</div>
+    <div class="module-item locked" id="mod-3-1">
+      <div class="module-dot"></div>Traffic Sources
+    </div>
+    <div class="module-item locked" id="mod-3-2">
+      <div class="module-dot"></div>Engagement Rate
+    </div>
+    <div class="module-item locked" id="mod-3-3">
+      <div class="module-dot"></div>Funnel Analysis
+    </div>
+  </div>
+
+  <!-- PHASE 4 -->
+  <div class="phase-section">
+    <div class="phase-label">Phase 4 · Business</div>
+    <div class="module-item locked" id="mod-4-1">
+      <div class="module-dot"></div>Revenue Tracking
+    </div>
+    <div class="module-item locked" id="mod-4-2">
+      <div class="module-dot"></div>Campaign ROI
+    </div>
+  </div>
+
+  <!-- PHASE 5 -->
+  <div class="phase-section">
+    <div class="phase-label">Phase 5 · Advanced</div>
+    <div class="module-item locked" id="mod-5-1">
+      <div class="module-dot"></div>Explorations
+    </div>
+    <div class="module-item locked" id="mod-5-2">
+      <div class="module-dot"></div>Segments
+    </div>
+  </div>
+
+  <div style="height:20px"></div>
 </nav>
 
-<!-- MAIN -->
+<!-- MAIN AREA -->
 <div class="main">
-  <div class="topbar">
-    <div class="topbar-title" id="topbar-title">Home</div>
-    <div class="topbar-spacer"></div>
-    <div class="date-pill" id="date-pill" onclick="handleInteraction('date')">📅 Feb 16 – Mar 17, 2025 ▾</div>
-    <button class="ai-tutor-btn" onclick="openAI()">🤖 AI Tutor</button>
-  </div>
 
-  <div class="content">
+  <!-- DASHBOARD CONTENT -->
+  <div class="dashboard" id="dashboard">
+
     <!-- CASE BANNER -->
     <div class="case-banner" id="caseBanner">
-      <span class="case-badge">CASE</span>
-      <span class="case-title" id="caseTitle">Loading case...</span>
-      <div class="case-progress" id="caseProgress"></div>
+      <div class="case-badge">CASE</div>
+      <div class="case-text" id="caseText">You just joined TechMart as their digital analyst. Day 1. Your manager drops a laptop on your desk and says: "We use GA4. Figure out if our site is growing."</div>
+      <div class="case-phase" id="casePhase">Module 1 of 3</div>
     </div>
 
-    <!-- HOME -->
-    <div id="view-home" class="subview active">
-      <div class="metrics-grid">
-        <div class="metric-card" id="card-users" onclick="handleInteraction('users')">
-          <div class="metric-label">Active users</div>
-          <div class="metric-value">24,821</div>
-          <div class="metric-change up">▲ 12.4%</div>
-        </div>
-        <div class="metric-card" id="card-newusers" onclick="handleInteraction('newusers')">
-          <div class="metric-label">New users</div>
-          <div class="metric-value">18,204</div>
-          <div class="metric-change up">▲ 8.7%</div>
-        </div>
-        <div class="metric-card" id="card-engtime" onclick="handleInteraction('engtime')">
-          <div class="metric-label">Avg. engagement time</div>
-          <div class="metric-value">3m 24s</div>
-          <div class="metric-change down">▼ 2.1%</div>
-        </div>
-        <div class="metric-card" id="card-engsessions" onclick="handleInteraction('engsessions')">
-          <div class="metric-label">Engaged sessions</div>
-          <div class="metric-value">16,340</div>
-          <div class="metric-change up">▲ 15.2%</div>
-        </div>
-        <div class="metric-card" id="card-engrate" onclick="handleInteraction('engrate')">
-          <div class="metric-label">Engagement rate</div>
-          <div class="metric-value">65.8%</div>
-          <div class="metric-change up">▲ 3.1%</div>
-        </div>
-        <div class="metric-card" id="card-events" onclick="handleInteraction('events-count')">
-          <div class="metric-label">Event count</div>
-          <div class="metric-value">312,488</div>
-          <div class="metric-change up">▲ 22.8%</div>
+    <!-- MODULE 1-1: WHAT IS GA4 -->
+    <div id="view-1-1" class="subview active">
+
+      <!-- Micro question appears at right moment -->
+      <div class="micro-q" id="microQ1" style="display:none">
+        <div class="micro-q-label">Quick check</div>
+        <div class="micro-q-text">What does GA4 mainly track?</div>
+        <div class="micro-q-options">
+          <div class="micro-q-opt" onclick="answerMicro(this, false)">Emails</div>
+          <div class="micro-q-opt" onclick="answerMicro(this, true)">User behavior on websites</div>
+          <div class="micro-q-opt" onclick="answerMicro(this, false)">Social media posts</div>
         </div>
       </div>
 
-      <div class="chart-section" id="main-chart-section">
+      <!-- The GA4 Overview screen -->
+      <div class="metrics-grid" id="metricsGrid">
+        <div class="metric-card" id="card-users" onclick="handleClick('card-users')">
+          <div class="metric-info-btn" onclick="event.stopPropagation();coachExplain('users')">?</div>
+          <div class="metric-label">Active users</div>
+          <div class="metric-value">24,821</div>
+          <div class="metric-change up">▲ 12.4% vs prev period</div>
+        </div>
+        <div class="metric-card" id="card-new" onclick="handleClick('card-new')">
+          <div class="metric-info-btn" onclick="event.stopPropagation();coachExplain('new-users')">?</div>
+          <div class="metric-label">New users</div>
+          <div class="metric-value">18,204</div>
+          <div class="metric-change up">▲ 8.7% vs prev period</div>
+        </div>
+        <div class="metric-card" id="card-engtime" onclick="handleClick('card-engtime')">
+          <div class="metric-info-btn" onclick="event.stopPropagation();coachExplain('eng-time')">?</div>
+          <div class="metric-label">Avg. engagement time</div>
+          <div class="metric-value">3m 24s</div>
+          <div class="metric-change down">▼ 2.1% vs prev period</div>
+        </div>
+        <div class="metric-card" id="card-engrate" onclick="handleClick('card-engrate')">
+          <div class="metric-info-btn" onclick="event.stopPropagation();coachExplain('eng-rate')">?</div>
+          <div class="metric-label">Engagement rate</div>
+          <div class="metric-value">65.8%</div>
+          <div class="metric-change up">▲ 3.1% vs prev period</div>
+        </div>
+        <div class="metric-card" id="card-events" onclick="handleClick('card-events')">
+          <div class="metric-info-btn" onclick="event.stopPropagation();coachExplain('events')">?</div>
+          <div class="metric-label">Event count</div>
+          <div class="metric-value">312,488</div>
+          <div class="metric-change up">▲ 22.8% vs prev period</div>
+        </div>
+        <div class="metric-card" id="card-revenue" onclick="handleClick('card-revenue')">
+          <div class="metric-info-btn" onclick="event.stopPropagation();coachExplain('revenue')">?</div>
+          <div class="metric-label">Total revenue</div>
+          <div class="metric-value">$18,420</div>
+          <div class="metric-change up">▲ 28.4% vs prev period</div>
+        </div>
+      </div>
+
+      <div class="chart-section" id="mainChartSection">
         <div class="section-header">
-          <div class="section-title">Users over time</div>
-          <div class="chart-tabs">
-            <button class="chart-tab active" onclick="switchTab(this,'users')">Users</button>
-            <button class="chart-tab" onclick="switchTab(this,'sessions')">Sessions</button>
-            <button class="chart-tab" onclick="switchTab(this,'revenue')">Revenue</button>
+          <div class="section-title">Users over time — last 30 days</div>
+          <div style="display:flex;gap:6px">
+            <button onclick="switchChart('users')" style="border:1px solid #dadce0;border-radius:4px;padding:4px 10px;font-size:11px;cursor:pointer;background:#fff">Users</button>
+            <button onclick="switchChart('sessions')" style="border:1px solid #dadce0;border-radius:4px;padding:4px 10px;font-size:11px;cursor:pointer;background:#fff">Sessions</button>
+            <button onclick="switchChart('revenue')" style="border:1px solid #dadce0;border-radius:4px;padding:4px 10px;font-size:11px;cursor:pointer;background:#fff">Revenue</button>
           </div>
         </div>
         <div class="chart-wrap"><canvas id="mainChart"></canvas></div>
       </div>
 
+      <!-- Recap (shown after completing module) -->
+      <div class="recap" id="recap1" style="display:none">
+        <div class="recap-title">Module recap</div>
+        <div class="recap-item">GA4 is Google's analytics tool — it tracks what users DO on your site</div>
+        <div class="recap-item">The Overview shows your most important numbers at a glance</div>
+        <div class="recap-item">Green ▲ = growing, Red ▼ = declining — always compare to previous period</div>
+        <div class="recap-item">Active Users = people who actually engaged (not just bounced)</div>
+      </div>
+
+    </div>
+
+    <!-- MODULE 1-2: THE DASHBOARD -->
+    <div id="view-1-2" class="subview">
+      <div class="case-banner" style="margin-bottom:14px">
+        <div class="case-badge">CASE</div>
+        <div class="case-text">Your manager asks: "Can you show me where our traffic is coming from?" You need to find the right report in GA4.</div>
+      </div>
+
       <div class="two-col">
-        <div class="chart-section" style="margin-bottom:0" id="channel-table">
+        <div class="chart-section" id="channelTable">
           <div class="section-header">
-            <div class="section-title">Users by channel</div>
-            <span style="font-size:11px;color:var(--blue);cursor:pointer" onclick="setView('acquisition',document.getElementById('nav-acquisition'))">Full report →</span>
+            <div class="section-title">Traffic by channel</div>
           </div>
           <table class="data-table">
-            <thead><tr><th>Channel</th><th>Users</th><th>Eng.rate</th></tr></thead>
+            <thead><tr><th>Channel</th><th>Users</th><th>Eng. rate</th></tr></thead>
             <tbody>
-              <tr id="row-organic" onclick="handleInteraction('organic')"><td><span class="channel-dot" style="background:#4285f4"></span>Organic Search</td><td>9,840</td><td>71.2%</td></tr>
-              <tr id="row-direct" onclick="handleInteraction('direct')"><td><span class="channel-dot" style="background:#34a853"></span>Direct</td><td>6,102</td><td>58.4%</td></tr>
-              <tr id="row-social" onclick="handleInteraction('social')"><td><span class="channel-dot" style="background:#fbbc04"></span>Organic Social</td><td>3,892</td><td>62.1%</td></tr>
-              <tr id="row-paid" onclick="handleInteraction('paid')"><td><span class="channel-dot" style="background:#ea4335"></span>Paid Search</td><td id="paid-val">2,814</td><td id="paid-eng">54.8%</td></tr>
-              <tr id="row-email" onclick="handleInteraction('email')"><td><span class="channel-dot" style="background:#a142f4"></span>Email</td><td>1,240</td><td>78.3%</td></tr>
+              <tr id="row-organic" onclick="handleClick('row-organic')"><td><span class="channel-dot" style="background:#4285f4"></span>Organic Search</td><td>9,840</td><td>71.2%</td></tr>
+              <tr id="row-direct" onclick="handleClick('row-direct')"><td><span class="channel-dot" style="background:#34a853"></span>Direct</td><td>6,102</td><td>58.4%</td></tr>
+              <tr id="row-social" onclick="handleClick('row-social')"><td><span class="channel-dot" style="background:#fbbc04"></span>Organic Social</td><td>3,892</td><td>62.1%</td></tr>
+              <tr id="row-paid" onclick="handleClick('row-paid')"><td><span class="channel-dot" style="background:#ea4335"></span>Paid Search</td><td>2,814</td><td>54.8%</td></tr>
+              <tr id="row-email" onclick="handleClick('row-email')"><td><span class="channel-dot" style="background:#a142f4"></span>Email</td><td>1,240</td><td>78.3%</td></tr>
             </tbody>
           </table>
         </div>
-        <div class="chart-section" style="margin-bottom:0">
-          <div class="section-title" style="margin-bottom:14px">Top pages</div>
+        <div class="chart-section" id="pagesTable">
+          <div class="section-header">
+            <div class="section-title">Top pages</div>
+          </div>
           <table class="data-table">
             <thead><tr><th>Page</th><th>Views</th><th>Avg time</th></tr></thead>
             <tbody>
-              <tr onclick="handleInteraction('page-home')"><td>/home</td><td>41,200</td><td>1m 12s</td></tr>
-              <tr onclick="handleInteraction('page-pricing')"><td>/pricing</td><td>18,830</td><td>3m 44s</td></tr>
-              <tr onclick="handleInteraction('page-blog')"><td>/blog/ga4-guide</td><td>12,104</td><td>6m 21s</td></tr>
-              <tr onclick="handleInteraction('page-signup')"><td>/signup</td><td>9,201</td><td>2m 05s</td></tr>
-              <tr onclick="handleInteraction('page-features')"><td>/features</td><td>7,840</td><td>4m 10s</td></tr>
+              <tr onclick="handleClick('page-home')"><td>/home</td><td>41,200</td><td>1m 12s</td></tr>
+              <tr onclick="handleClick('page-pricing')"><td>/pricing</td><td>18,830</td><td>3m 44s</td></tr>
+              <tr onclick="handleClick('page-blog')"><td>/blog/ga4-guide</td><td>12,104</td><td>6m 21s</td></tr>
+              <tr onclick="handleClick('page-signup')"><td>/signup</td><td>9,201</td><td>2m 05s</td></tr>
             </tbody>
           </table>
         </div>
       </div>
-    </div>
 
-    <!-- REALTIME -->
-    <div id="view-realtime" class="subview">
-      <div class="chart-section">
-        <div style="display:flex;align-items:flex-start;gap:32px;flex-wrap:wrap">
-          <div>
-            <div style="font-size:12px;color:var(--text2);margin-bottom:6px"><span class="pulse"></span> Users in last 30 min</div>
-            <div class="rt-big" id="rt-count">142</div>
-            <div style="font-size:12px;color:var(--text2);margin-top:4px">active users now</div>
-          </div>
-          <div style="flex:1;min-width:160px">
-            <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-top:8px">
-              <div style="background:#f8f9fa;border-radius:8px;padding:10px;text-align:center;cursor:pointer" onclick="handleInteraction('rt-views')">
-                <div style="font-size:20px;font-family:'Google Sans',sans-serif">38</div>
-                <div style="font-size:10px;color:var(--text2)">Views/min</div>
-              </div>
-              <div style="background:#f8f9fa;border-radius:8px;padding:10px;text-align:center;cursor:pointer" onclick="handleInteraction('rt-events')">
-                <div style="font-size:20px;font-family:'Google Sans',sans-serif">127</div>
-                <div style="font-size:10px;color:var(--text2)">Events/min</div>
-              </div>
-              <div style="background:#f8f9fa;border-radius:8px;padding:10px;text-align:center;cursor:pointer" onclick="handleInteraction('rt-conversions')">
-                <div style="font-size:20px;font-family:'Google Sans',sans-serif">4</div>
-                <div style="font-size:10px;color:var(--text2)">Conversions</div>
-              </div>
-            </div>
-          </div>
+      <div class="micro-q" id="microQ2" style="display:none">
+        <div class="micro-q-label">Quick check</div>
+        <div class="micro-q-text">Which channel has the highest engagement rate?</div>
+        <div class="micro-q-options">
+          <div class="micro-q-opt" onclick="answerMicro(this, false)">Organic Search</div>
+          <div class="micro-q-opt" onclick="answerMicro(this, false)">Direct</div>
+          <div class="micro-q-opt" onclick="answerMicro(this, true)">Email</div>
         </div>
-        <div class="chart-wrap" style="height:140px;margin-top:16px"><canvas id="rtChart"></canvas></div>
+      </div>
+
+      <div class="recap" id="recap2" style="display:none">
+        <div class="recap-title">Module recap</div>
+        <div class="recap-item">Traffic channels show WHERE your users came from</div>
+        <div class="recap-item">Engagement rate tells you HOW interested those users were</div>
+        <div class="recap-item">Email often has the highest engagement — they already know you</div>
+        <div class="recap-item">Top pages show WHAT users want to see on your site</div>
       </div>
     </div>
 
-    <!-- ACQUISITION -->
-    <div id="view-acquisition" class="subview">
-      <div class="metrics-grid">
-        <div class="metric-card" onclick="handleInteraction('acq-users')"><div class="metric-label">Total users</div><div class="metric-value">24,821</div><div class="metric-change up">▲ 12.4%</div></div>
-        <div class="metric-card" onclick="handleInteraction('acq-sessions')"><div class="metric-label">Sessions</div><div class="metric-value">31,204</div><div class="metric-change up">▲ 9.2%</div></div>
-        <div class="metric-card" onclick="handleInteraction('acq-spu')"><div class="metric-label">Sessions per user</div><div class="metric-value">1.26</div><div class="metric-change down">▼ 0.8%</div></div>
-      </div>
-      <div class="chart-section" id="acq-table">
-        <div class="section-header"><div class="section-title">Traffic acquisition by channel</div></div>
-        <table class="data-table">
-          <thead><tr><th>Channel</th><th>Users</th><th>New users</th><th>Sessions</th><th>Eng.rate</th><th>Avg.eng.time</th></tr></thead>
-          <tbody>
-            <tr id="acq-organic" onclick="handleInteraction('acq-organic-click')"><td><span class="channel-dot" style="background:#4285f4"></span>Organic Search</td><td>9,840</td><td>7,120</td><td>12,210</td><td>71.2%</td><td>4m 12s</td></tr>
-            <tr id="acq-direct" onclick="handleInteraction('acq-direct-click')"><td><span class="channel-dot" style="background:#34a853"></span>Direct</td><td>6,102</td><td>4,210</td><td>7,440</td><td>58.4%</td><td>2m 44s</td></tr>
-            <tr id="acq-social" onclick="handleInteraction('acq-social-click')"><td><span class="channel-dot" style="background:#fbbc04"></span>Organic Social</td><td>3,892</td><td>3,100</td><td>4,501</td><td>62.1%</td><td>2m 01s</td></tr>
-            <tr id="acq-paid" onclick="handleInteraction('acq-paid-click')"><td><span class="channel-dot" style="background:#ea4335"></span>Paid Search</td><td id="acq-paid-users">2,814</td><td id="acq-paid-new">2,814</td><td id="acq-paid-sess">3,200</td><td id="acq-paid-eng">54.8%</td><td>1m 52s</td></tr>
-            <tr id="acq-email" onclick="handleInteraction('acq-email-click')"><td><span class="channel-dot" style="background:#a142f4"></span>Email</td><td>1,240</td><td>310</td><td>1,490</td><td>78.3%</td><td>5m 10s</td></tr>
-          </tbody>
-        </table>
+  </div><!-- /dashboard -->
+
+  <!-- STEP PANEL -->
+  <div class="step-panel" id="stepPanel">
+    <div class="step-panel-header">
+      <div class="step-panel-title" id="stepPanelTitle">Module steps</div>
+      <div style="display:flex;gap:6px">
+        <button onclick="openTest()" style="border:1px solid var(--border);border-radius:6px;padding:4px 10px;font-size:11px;cursor:pointer;background:#fff;color:var(--text2)">Module test</button>
       </div>
     </div>
-
-    <!-- ENGAGEMENT -->
-    <div id="view-engagement" class="subview">
-      <div class="metrics-grid">
-        <div class="metric-card" onclick="handleInteraction('eng-events')"><div class="metric-label">Event count</div><div class="metric-value">312,488</div><div class="metric-change up">▲ 22.8%</div></div>
-        <div class="metric-card" onclick="handleInteraction('eng-conversions')"><div class="metric-label">Conversions</div><div class="metric-value">1,842</div><div class="metric-change up">▲ 31.2%</div></div>
-        <div class="metric-card" onclick="handleInteraction('eng-rate')"><div class="metric-label">Engagement rate</div><div class="metric-value">65.8%</div><div class="metric-change up">▲ 3.1%</div></div>
-      </div>
-      <div class="chart-section">
-        <div class="section-header"><div class="section-title">Top events</div></div>
-        <table class="data-table">
-          <thead><tr><th>Event name</th><th>Count</th><th>Users</th></tr></thead>
-          <tbody>
-            <tr onclick="handleInteraction('event-pageview')"><td>page_view</td><td>124,800</td><td>24,821</td></tr>
-            <tr onclick="handleInteraction('event-session')"><td>session_start</td><td>31,204</td><td>24,821</td></tr>
-            <tr onclick="handleInteraction('event-firstvisit')"><td>first_visit</td><td>18,204</td><td>18,204</td></tr>
-            <tr onclick="handleInteraction('event-scroll')"><td>scroll</td><td>48,201</td><td>18,400</td></tr>
-            <tr onclick="handleInteraction('event-click')"><td>click</td><td>31,040</td><td>12,200</td></tr>
-            <tr onclick="handleInteraction('event-signup')"><td>sign_up</td><td>1,842</td><td>1,842</td></tr>
-            <tr onclick="handleInteraction('event-purchase')"><td>purchase</td><td>412</td><td>398</td></tr>
-          </tbody>
-        </table>
-      </div>
+    <div class="steps-row" id="stepsRow">
+      <!-- Steps injected by JS -->
     </div>
+  </div>
 
-    <!-- MONETIZATION -->
-    <div id="view-monetization" class="subview">
-      <div class="metrics-grid">
-        <div class="metric-card" onclick="handleInteraction('mon-revenue')"><div class="metric-label">Total revenue</div><div class="metric-value">$18,420</div><div class="metric-change up">▲ 28.4%</div></div>
-        <div class="metric-card" onclick="handleInteraction('mon-arpu')"><div class="metric-label">Avg. purchase revenue</div><div class="metric-value">$44.71</div><div class="metric-change up">▲ 6.2%</div></div>
-        <div class="metric-card" onclick="handleInteraction('mon-rate')"><div class="metric-label">Purchase rate</div><div class="metric-value">1.66%</div><div class="metric-change down">▼ 0.4%</div></div>
-      </div>
-      <div class="chart-section">
-        <div class="section-header"><div class="section-title">Purchase funnel</div></div>
-        <div class="funnel-bar" onclick="handleInteraction('funnel-view')"><div class="funnel-fill" style="width:100%"></div><span class="funnel-label">view_item</span><span class="funnel-val">8,420</span></div>
-        <div class="funnel-bar" onclick="handleInteraction('funnel-cart')"><div class="funnel-fill" style="width:72%"></div><span class="funnel-label">add_to_cart</span><span class="funnel-val">6,062 (72%)</span></div>
-        <div class="funnel-bar" onclick="handleInteraction('funnel-checkout')"><div class="funnel-fill" style="width:44%"></div><span class="funnel-label">begin_checkout</span><span class="funnel-val">3,705 (44%)</span></div>
-        <div class="funnel-bar" onclick="handleInteraction('funnel-payment')"><div class="funnel-fill" style="width:28%"></div><span class="funnel-label">add_payment_info</span><span class="funnel-val">2,358 (28%)</span></div>
-        <div class="funnel-bar" onclick="handleInteraction('funnel-purchase')"><div class="funnel-fill" style="width:9%"></div><span class="funnel-label">purchase</span><span class="funnel-val">758 (9%)</span></div>
-      </div>
-    </div>
-
-    <!-- RETENTION -->
-    <div id="view-retention" class="subview">
-      <div class="metrics-grid">
-        <div class="metric-card" onclick="handleInteraction('ret-d1')"><div class="metric-label">Day 1 retention</div><div class="metric-value">24.3%</div><div class="metric-change down">▼ 1.8%</div></div>
-        <div class="metric-card" onclick="handleInteraction('ret-d7')"><div class="metric-label">Day 7 retention</div><div class="metric-value">12.1%</div><div class="metric-change up">▲ 0.4%</div></div>
-        <div class="metric-card" onclick="handleInteraction('ret-d30')"><div class="metric-label">Day 30 retention</div><div class="metric-value">5.4%</div><div class="metric-change up">▲ 0.2%</div></div>
-      </div>
-      <div class="chart-section">
-        <div class="section-header"><div class="section-title">Retention cohort</div></div>
-        <div class="chart-wrap"><canvas id="retentionChart"></canvas></div>
-      </div>
-    </div>
-
-  </div><!-- /content -->
 </div><!-- /main -->
+</div><!-- /app -->
 
-<!-- AI PANEL -->
-<div class="ai-panel" id="aiPanel">
-  <div class="ai-header">
-    <span>🤖</span>
-    <h3>GA4 AI Tutor</h3>
-    <span class="ai-mode-badge" id="aiModeBadge">FREE EXPLORE</span>
-    <button class="ai-close" onclick="closeAI()">✕</button>
+<!-- ============================================================
+     COACH WIDGET
+============================================================ -->
+<div class="coach" id="coach">
+  <div class="coach-header" id="coachHeader">
+    <div class="coach-avatar">👨‍🏫</div>
+    <div class="coach-name">Coach Alex</div>
+    <button class="coach-minimize" onclick="minimizeCoach()">—</button>
   </div>
+  <div class="coach-body" id="coachBody">
+    <div class="coach-msg" id="coachMsg">Loading...</div>
+    <button class="coach-action" id="coachBtn" onclick="nextStep()">Next step →</button>
+    <button class="coach-action secondary" id="coachRepeat" onclick="repeatStep()">🔁 Repeat</button>
+  </div>
+  <div class="resize-handle"></div>
+</div>
+<div class="coach-minimized" id="coachMin" onclick="maximizeCoach()">
+  👨‍🏫 Coach Alex
+</div>
 
-  <!-- CASE SELECTOR (shown when no active case) -->
-  <div class="case-selector" id="caseSelectorPanel">
-    <div class="case-selector-title">Choose a case study</div>
-    <div class="case-list">
-      <div class="case-item" id="case0" onclick="startCase(0)">
-        <div class="case-item-title">🔍 The Traffic Drop Mystery</div>
-        <div class="case-item-desc">Traffic fell 40%. Your boss wants answers. Use GA4 to find the cause.</div>
-        <div class="case-item-difficulty beginner">● Beginner · 5 steps</div>
+<!-- ============================================================
+     PROF. JOHN PANEL
+============================================================ -->
+<div class="john-panel" id="johnPanel" onclick="closeJohnBg(event)">
+  <div class="john-box">
+    <div class="john-header">
+      <div class="john-avatar">🎓</div>
+      <div class="john-info">
+        <div class="john-name">Prof. John</div>
+        <div class="john-title">GA4 Expert · Ask me anything</div>
       </div>
-      <div class="case-item" id="case1" onclick="startCase(1)">
-        <div class="case-item-title">💰 Why Isn't Anyone Buying?</div>
-        <div class="case-item-desc">Revenue is flat despite growing traffic. Find the funnel leak.</div>
-        <div class="case-item-difficulty intermediate">● Intermediate · 6 steps</div>
-      </div>
-      <div class="case-item" id="case2" onclick="startCase(2)">
-        <div class="case-item-title">📧 Campaign ROI Report</div>
-        <div class="case-item-desc">Prove (or disprove) that the email campaign was worth the investment.</div>
-        <div class="case-item-difficulty intermediate">● Intermediate · 5 steps</div>
-      </div>
-      <div class="case-item" id="case3" onclick="startCase(3)">
-        <div class="case-item-title">🧠 Free Explore Mode</div>
-        <div class="case-item-desc">No case — just click anything and I'll explain it. Your dashboard, your pace.</div>
-        <div class="case-item-difficulty beginner">● Any level</div>
-      </div>
+      <button class="john-close" onclick="closeJohn()">✕</button>
+    </div>
+    <div class="john-messages" id="johnMessages">
+      <div class="john-msg bot">Hello! I'm Prof. John. I'm here to answer your deeper questions about GA4 — things not covered in the lesson. What would you like to know?</div>
+    </div>
+    <div class="john-input-area">
+      <input class="john-input" id="johnInput" placeholder="Ask Prof. John..." onkeydown="if(event.key==='Enter')sendJohn()">
+      <button class="john-send" onclick="sendJohn()">➤</button>
     </div>
   </div>
+</div>
 
-  <div class="quick-asks" id="quickAsks" style="display:none">
-    <div class="qchip" onclick="freeAsk('What should I look at first in GA4?')">Where to start?</div>
-    <div class="qchip" onclick="freeAsk('Explain engagement rate vs bounce rate')">Eng. rate?</div>
-    <div class="qchip" onclick="freeAsk('How do I set up conversion tracking in GA4?')">Conversions</div>
-    <div class="qchip" onclick="freeAsk('Quiz me on what I have learned so far!')">🧠 Quiz me</div>
-    <div class="qchip" onclick="exitCase()">← Change case</div>
-  </div>
-
-  <div class="ai-messages" id="aiMessages" style="display:none">
-    <!-- messages injected here -->
-  </div>
-
-  <div class="ai-input-area" id="aiInputArea" style="display:none">
-    <textarea class="ai-input" id="aiInput" placeholder="Ask anything..." rows="1" onkeydown="handleKey(event)"></textarea>
-    <button class="ai-send" id="aiSend" onclick="sendMessage()">➤</button>
+<!-- ============================================================
+     MODULE TEST
+============================================================ -->
+<div class="test-panel" id="testPanel" onclick="closeTestBg(event)">
+  <div class="test-box" id="testBox">
+    <!-- Injected by JS -->
   </div>
 </div>
 
 <script>
-// ========== STATE ==========
-let activeCase = null;
-let caseStep = 0;
-let casePending = null; // what interaction is expected
-let aiOpen = false;
-let mainChartObj, rtChartObj, retChart;
+// ============================================================
+//  STATE
+// ============================================================
+let currentModule = '1-1';
+let currentStep = 0;
+let totalSteps = 0;
+let stepsDone = new Set();
+let modulesDone = new Set();
+let speaking = false;
+let speechUtterance = null;
+let coachDragging = false;
+let coachDragOffsetX = 0;
+let coachDragOffsetY = 0;
+let coachVisible = true;
+let pendingClick = null; // what element user needs to click
 
-// ========== CASES ==========
-const CASES = [
-  {
-    title: "The Traffic Drop Mystery",
+// ============================================================
+//  MODULES DATA
+// ============================================================
+const MODULES = {
+  '1-1': {
+    title: 'What is GA4?',
+    phase: 'Phase 1 · First Contact',
+    case: 'You just joined TechMart as their digital analyst. Day 1. Your manager says: "We use GA4. Figure out if our site is growing."',
     steps: [
       {
-        msg: "📋 **Your scenario:** You're the new analyst at Acme Inc. The marketing director just messaged: *'Traffic is down 40% this month — figure out why before the 3pm meeting.'*\n\nLet's start by understanding where traffic comes from. 👆 **Go to the Acquisition report** in the sidebar.",
-        expect: 'view-acquisition',
-        highlight: 'nav-acquisition',
-        hint: "Click 'Acquisition' in the left sidebar"
+        id: 's1',
+        label: 'See the overview',
+        coachMsg: "Welcome to GA4! 👋 This is the **Overview screen**. Think of it as the homepage of your analytics — it shows you the most important numbers at a glance.\n\nRight now I want you to look at the number that says **Active users**. Can you spot it?",
+        action: 'Look at the dashboard',
+        highlight: 'card-users',
+        expect: 'card-users',
+        audio: "Welcome to GA4! This is the Overview screen. Think of it as the homepage of your analytics. It shows you the most important numbers at a glance. I want you to click on Active Users to learn what it means."
       },
       {
-        msg: "Good! You're in Acquisition. This shows you WHERE visitors are coming from.\n\n🔍 Now look at the channels. Something looks very wrong with one of them. **Click on Paid Search row** to investigate.",
-        expect: 'acq-paid-click',
-        highlight: 'acq-paid',
-        hint: "Click the Paid Search row in the table"
+        id: 's2',
+        label: 'Find New Users',
+        coachMsg: "Great! Active Users means people who actually **engaged** with your site — not just landed and left.\n\nNow click on **New Users**. This tells you if TechMart is growing its audience.",
+        action: 'Click New Users card',
+        highlight: 'card-new',
+        expect: 'card-new',
+        audio: "Great! Active Users are people who actually engaged with the site. Now click on New Users to see if TechMart is growing its audience."
       },
       {
-        msg: "👀 Interesting. Paid Search dropped from 3,200 to 2,814 sessions. But that's not 40%... Let me change the data to show the real problem.\n\n⚠️ **New data loaded:** Paid Search is now showing 0 sessions. Check the date range — click the **date selector** in the top bar to see when it happened.",
-        expect: 'date',
-        highlight: 'date-pill',
-        hint: "Click the date selector at the top",
-        onEnter: () => {
-          document.getElementById('paid-val').textContent = '0';
-          document.getElementById('paid-eng').textContent = '—';
-          document.getElementById('acq-paid-users').textContent = '0';
-          document.getElementById('acq-paid-new').textContent = '0';
-          document.getElementById('acq-paid-sess').textContent = '0';
-          document.getElementById('acq-paid-eng').textContent = '—';
-          document.getElementById('acq-paid').classList.add('highlighted-row');
+        id: 's3',
+        label: 'Check the trend',
+        coachMsg: "New Users are up 8.7%! That means more people are discovering TechMart.\n\n**Quick question coming up** — answer it before we move on. This takes 5 seconds.",
+        action: 'Answer the question',
+        showMicro: 'microQ1',
+        audio: "New users are up 8.7 percent — TechMart is growing. Answer the quick question below before we move on."
+      },
+      {
+        id: 's4',
+        label: 'Read the chart',
+        coachMsg: "Good! Now look at the **chart below** the metrics. This shows user trends over 30 days.\n\nClick on the chart to explore it. Try switching between **Users**, **Sessions**, and **Revenue** using the buttons.",
+        action: 'Explore the chart',
+        highlight: 'mainChartSection',
+        expect: 'mainChartSection',
+        audio: "Now look at the chart showing 30 days of data. Click on it and try switching between Users, Sessions, and Revenue."
+      },
+      {
+        id: 's5',
+        label: 'Module complete',
+        coachMsg: "🎉 You just read your first GA4 report!\n\nLet's recap what you learned before moving to the next module.",
+        action: 'View recap',
+        showRecap: 'recap1',
+        audio: "Excellent work! You just completed your first GA4 module. Let's review what you learned."
+      }
+    ],
+    test: {
+      title: 'Module 1 Test',
+      subtitle: 'Quick check on what you just learned',
+      questions: [
+        {
+          q: 'What does GA4 primarily track?',
+          opts: ['Server performance', 'User behavior on websites', 'Email open rates', 'Social media likes'],
+          correct: 1
+        },
+        {
+          q: 'Active Users are people who…',
+          opts: ['Just visited the page', 'Actually engaged with the site', 'Made a purchase', 'Clicked an ad'],
+          correct: 1
+        },
+        {
+          q: 'If New Users are up 8.7%, what does this mean?',
+          opts: ['Less people are finding the site', 'More people are discovering the site', 'Returning users decreased', 'Revenue went up'],
+          correct: 1
+        },
+        {
+          q: 'A green ▲ next to a metric means…',
+          opts: ['There was an error', 'The metric is declining', 'The metric is growing vs last period', 'Nothing important'],
+          correct: 2
         }
-      },
-      {
-        msg: "🎯 **Found it!** Paid Search went to zero on March 3rd. This means your Google Ads campaign completely stopped running.\n\nThe most likely causes: budget ran out, campaign was paused accidentally, or billing failed.\n\nNow go check **Engagement rate** of remaining channels. Click the **Engagement report**.",
-        expect: 'view-engagement',
-        highlight: 'nav-engagement',
-        hint: "Click 'Engagement' in the left sidebar"
-      },
-      {
-        msg: "✅ **Case solved!** Here's your 3pm meeting summary:\n\n📉 **Root cause:** Paid Search dropped to 0 on March 3rd\n📊 **Impact:** ~2,800 sessions lost per month\n💰 **Organic channels** held steady — so the site itself is fine\n\n**Next steps to recommend:**\n1. Check Google Ads billing\n2. Set up budget alerts\n3. Create a GA4 alert for traffic drops >20%\n\n🎉 You completed your first GA4 investigation! Want to try another case?",
-        expect: null,
-        highlight: null
-      }
-    ]
+      ]
+    }
   },
-  {
-    title: "Why Isn't Anyone Buying?",
+  '1-2': {
+    title: 'The Dashboard',
+    phase: 'Phase 1 · First Contact',
+    case: 'Your manager asks: "Can you show me where our traffic is coming from?" You need to navigate GA4 and find the right data.',
     steps: [
       {
-        msg: "📋 **Your scenario:** Monthly traffic is up 20% but revenue is flat. The CEO is confused. Your job: find where people are dropping off.\n\nStart with the big picture. **Go to the Monetization report** in the sidebar.",
-        expect: 'view-monetization',
-        highlight: 'nav-monetization',
-        hint: "Click 'Monetization' in the left sidebar"
+        id: 's1',
+        label: 'Find traffic channels',
+        coachMsg: "Your manager wants to know **where visitors come from**.\n\nLook at the table on the left — it shows **Traffic by channel**. Each row is a different source of visitors. Click any row to learn about it.",
+        action: 'Click a channel row',
+        highlight: 'channelTable',
+        expect: 'row-organic',
+        audio: "Your manager wants to know where visitors come from. Look at the Traffic by Channel table and click on any row to learn about it."
       },
       {
-        msg: "You can see the purchase funnel. Look at the percentages from step to step.\n\n🔍 Notice anything? The biggest drop is between **add_to_cart → begin_checkout** (72% → 44%). That's a 28-point drop!\n\n**Click on begin_checkout** in the funnel to investigate this step.",
-        expect: 'funnel-checkout',
-        highlight: null,
-        hint: "Click the begin_checkout bar in the funnel"
+        id: 's2',
+        label: 'Compare engagement',
+        coachMsg: "You clicked **Organic Search** — that's users finding TechMart through Google search results.\n\nNow look at the **Eng. rate** column. Which channel has the highest rate?\n\nHint: Look at the Email row.",
+        action: 'Find highest engagement',
+        highlight: 'row-email',
+        expect: 'row-email',
+        audio: "Organic Search means users found TechMart through Google. Now look at the engagement rate column. Which channel is highest? Hint — look at Email."
       },
       {
-        msg: "💡 A 44% checkout start rate from cart means 56% of people who added to cart **never even started checkout**. This is a massive opportunity.\n\nCommon causes: shipping cost shock, forced account creation, poor mobile experience.\n\nNow check if mobile users are the problem. **Go to Engagement report** and check device data.",
-        expect: 'view-engagement',
-        highlight: 'nav-engagement',
-        hint: "Click 'Engagement' in the left sidebar"
+        id: 's3',
+        label: 'Answer the question',
+        coachMsg: "Interesting! Email has **78.3%** engagement — the highest of any channel. Why? Because email subscribers already know and trust the brand.\n\nLet's test if you got this.",
+        action: 'Answer the question',
+        showMicro: 'microQ2',
+        audio: "Email has 78 percent engagement — the highest of any channel. Email subscribers already know and trust the brand, so they engage more."
       },
       {
-        msg: "Look at the events. The **sign_up** event has 1,842 fires — almost the same as conversions. This suggests many users are being forced to create an account before purchase.\n\n**Click the sign_up event row** to confirm this theory.",
-        expect: 'event-signup',
-        highlight: null,
-        hint: "Click the sign_up row in the events table"
+        id: 's4',
+        label: 'Check top pages',
+        coachMsg: "Now look at the **Top Pages** table on the right.\n\nThis tells you WHAT content users find valuable. The /pricing page has users spending 3m 44s — that's someone seriously considering buying!\n\nClick on /pricing.",
+        action: 'Click pricing page',
+        highlight: 'pagesTable',
+        expect: 'page-pricing',
+        audio: "Now check the Top Pages table. Users spend 3 minutes 44 seconds on the pricing page — that's someone seriously considering buying. Click on pricing."
       },
       {
-        msg: "🎯 **Root cause identified!**\n\n**The problem:** Users add to cart → hit a mandatory account creation wall → abandon.\n\n**Evidence:**\n- 72% add to cart\n- Only 44% begin checkout (28pt drop = account wall)\n- sign_up events match purchase count exactly\n\n**Your recommendation:**\n1. Add guest checkout option\n2. A/B test: guest vs forced account\n3. Expected revenue lift: +15-25%\n\n🎉 Case complete! Great analysis work.",
-        expect: null,
-        highlight: null
+        id: 's5',
+        label: 'Module complete',
+        coachMsg: "🎉 You can now navigate GA4's main reports and explain traffic channels to your manager!\n\nYou're ready for the module test.",
+        action: 'View recap',
+        showRecap: 'recap2',
+        audio: "Excellent! You can now navigate GA4 reports and explain traffic channels. You are ready for the module test."
       }
-    ]
-  },
-  {
-    title: "Campaign ROI Report",
-    steps: [
-      {
-        msg: "📋 **Your scenario:** The email team spent $2,000 on a campaign last month. They want to know if it worked. You need to prove it with GA4 data.\n\n**Start in the Acquisition report** — that's where channel-level data lives.",
-        expect: 'view-acquisition',
-        highlight: 'nav-acquisition',
-        hint: "Click 'Acquisition' in the left sidebar"
-      },
-      {
-        msg: "In Acquisition you can see all channels. **Click the Email row** to see how the campaign performed versus other channels.",
-        expect: 'acq-email-click',
-        highlight: 'acq-email',
-        hint: "Click the Email row in the acquisition table"
-      },
-      {
-        msg: "🌟 Look at Email's engagement rate: **78.3%** — the highest of any channel! And avg engagement time of 5m 10s.\n\nThis tells you email visitors are highly engaged. Now let's see if they converted. **Go to the Monetization report**.",
-        expect: 'view-monetization',
-        highlight: 'nav-monetization',
-        hint: "Click 'Monetization' in the left sidebar"
-      },
-      {
-        msg: "Now look at the purchase funnel. Email users (who have 78% engagement rate) should convert at a higher rate than average.\n\n**Click on the purchase bar** at the bottom of the funnel — this is your ROI proof.",
-        expect: 'funnel-purchase',
-        highlight: null,
-        hint: "Click the purchase bar at the bottom of the funnel"
-      },
-      {
-        msg: "📊 **Your ROI Report is ready:**\n\n✅ **Email campaign results:**\n- 1,240 visitors from email\n- Highest engagement rate: 78.3%\n- Avg time on site: 5m 10s (vs site avg 3m 24s)\n- Estimated conversions: ~186 (15% of email visitors)\n- Revenue at $44.71 avg: **~$8,316**\n\n💰 **ROI:** $8,316 revenue vs $2,000 spend = **4.1x return**\n\nConclusion: Email campaign was highly profitable. Recommend increasing budget.\n\n🎉 Case complete! Your team will love this report.",
-        expect: null,
-        highlight: null
-      }
-    ]
-  }
-];
-
-// ========== INTERACTION HANDLER ==========
-// This is the core: every click on the dashboard goes here
-function handleInteraction(id) {
-  // Case mode
-  if (activeCase !== null && casePending) {
-    const step = CASES[activeCase].steps[caseStep];
-    if (id === step.expect) {
-      handleCorrectStep();
-      return;
-    } else {
-      handleWrongStep(id, step);
-      return;
+    ],
+    test: {
+      title: 'Module 2 Test',
+      subtitle: 'Dashboard navigation and traffic analysis',
+      questions: [
+        {
+          q: 'What does the "Traffic by channel" report show?',
+          opts: ['Pages on your site', 'Where your visitors came from', 'Revenue by product', 'Device types'],
+          correct: 1
+        },
+        {
+          q: 'Why does Email usually have the highest engagement rate?',
+          opts: ['Email links are faster', 'Subscribers already know and trust the brand', 'Email is a paid channel', 'Google ranks email higher'],
+          correct: 1
+        },
+        {
+          q: 'A user spending 3m 44s on /pricing suggests they are…',
+          opts: ['Lost and confused', 'Seriously considering buying', 'A bot', 'A returning employee'],
+          correct: 1
+        },
+        {
+          q: 'Organic Search means users found the site through…',
+          opts: ['Paid ads', 'Email newsletters', 'Google search results (free)', 'Social media'],
+          correct: 2
+        }
+      ]
     }
   }
-  // Free explore mode
-  if (activeCase === 3 || activeCase === null) {
-    const questions = {
-      'users': 'Explain the Active Users metric in GA4. What does it measure, how does GA4 count a user, and how is it different from Sessions?',
-      'newusers': 'What are New Users in GA4? How does GA4 identify a new user and what is a good new user to returning user ratio?',
-      'engtime': 'What is Average Engagement Time in GA4? How is it calculated and how does it compare to session duration in old Universal Analytics?',
-      'engsessions': 'What are Engaged Sessions in GA4? What makes a session count as engaged?',
-      'engrate': 'Explain Engagement Rate in GA4. What is a good engagement rate benchmark and how is it different from bounce rate?',
-      'events-count': 'Explain the Event Count metric in GA4. What is the GA4 event model and how does it differ from Universal Analytics?',
-      'organic': 'Explain Organic Search as a traffic channel in GA4. What does it mean and how can I grow it?',
-      'direct': 'What is Direct traffic in GA4 and why is some traffic misattributed as direct?',
-      'social': 'What is Organic Social in GA4? How does GA4 classify social traffic?',
-      'paid': 'Explain Paid Search in GA4. How does Google Ads connect with GA4?',
-      'email': 'What does email traffic in GA4 tell me? How should I track email campaigns with UTM parameters?',
-      'page-pricing': 'Why is tracking the pricing page important in GA4? What user behavior here indicates purchase intent?',
-      'event-pageview': 'Explain the page_view event in GA4. When does it fire?',
-      'event-signup': 'What is a sign_up event in GA4? How do I track it and mark it as a conversion?',
-      'event-purchase': 'How do I track purchases in GA4? What parameters should the purchase event include?',
-      'funnel-cart': 'What is add_to_cart in GA4? What is a healthy add-to-cart rate?',
-      'funnel-checkout': 'What does begin_checkout tell me in GA4? Why do people abandon at checkout?',
-      'funnel-purchase': 'How do I use the purchase event in GA4 to calculate conversion rate and revenue?',
-      'mon-revenue': 'Explain Total Revenue in GA4. What revenue streams does it track and how is it calculated?',
-      'ret-d1': 'What is Day 1 retention in GA4 and what is a good benchmark?',
-      'ret-d7': 'Explain 7-day retention in GA4. What strategies improve it?',
-      'acq-paid-click': 'Explain Paid Search traffic in GA4. How do I connect Google Ads data and what metrics matter most?',
-      'acq-email-click': 'How do I analyze email campaign performance in GA4? What metrics should I focus on?',
-      'date': 'How do date ranges work in GA4? How does comparing date ranges help with analysis?',
-      'rt-views': 'What do pageviews per minute mean in GA4 realtime? How do I interpret spikes?',
-      'rt-conversions': 'What are realtime conversions in GA4 and how do I monitor them?',
-    };
-    const q = questions[id] || `Explain the metric or element I just clicked (id: ${id}) in GA4. What does it mean and how should I use it?`;
-    openAI();
-    freeAsk(q);
-  }
-}
+};
 
-function handleCorrectStep() {
-  const step = CASES[activeCase].steps[caseStep];
-  clearHighlights();
-  showToast('✓ Correct!');
+// ============================================================
+//  COACH EXPLAINS (? button)
+// ============================================================
+const EXPLANATIONS = {
+  'users': "**Active Users** — these are people who had at least one engaged session. An engaged session = 10+ seconds on site, or a conversion, or 2+ pageviews. It's more accurate than simple 'visitors'.",
+  'new-users': "**New Users** — first-time visitors GA4 has never seen before. High new users = your marketing is reaching new people. Compare to returning users to understand loyalty.",
+  'eng-time': "**Avg Engagement Time** — how long users actually engaged (not just had the tab open). It replaced 'session duration'. Declining means users are leaving faster — worth investigating!",
+  'eng-rate': "**Engagement Rate** — % of sessions that were 'engaged' (10+ seconds, conversion, or 2+ pages). This replaced the old Bounce Rate. Above 60% is generally good.",
+  'events': "**Event Count** — GA4 is event-based. Every action (page view, click, scroll, purchase) is an event. High event count means users are actively doing things.",
+  'revenue': "**Total Revenue** — sum of all purchase events. In GA4, revenue only shows if you've implemented ecommerce tracking with the 'purchase' event."
+};
 
-  // Run onEnter for next step if any
-  const nextStepIdx = caseStep + 1;
-  if (nextStepIdx < CASES[activeCase].steps.length) {
-    const nextStep = CASES[activeCase].steps[nextStepIdx];
-    if (nextStep.onEnter) nextStep.onEnter();
-  }
+// ============================================================
+//  INIT
+// ============================================================
+document.addEventListener('DOMContentLoaded', () => {
+  initCharts();
+  loadModule('1-1');
+  initCoachDrag();
+});
 
-  caseStep++;
-  updateCaseProgress();
+// ============================================================
+//  LOAD MODULE
+// ============================================================
+function loadModule(id) {
+  const mod = MODULES[id];
+  if (!mod) return;
 
-  if (caseStep >= CASES[activeCase].steps.length) {
-    // Case complete
-    addMsg(CASES[activeCase].steps[CASES[activeCase].steps.length-1].msg, 'bot');
-    casePending = null;
-    addMsg('', 'system', '🎉 Case complete! Click "Change case" above to try another.');
-    return;
-  }
+  currentModule = id;
+  currentStep = 0;
+  pendingClick = null;
 
-  const next = CASES[activeCase].steps[caseStep];
-  casePending = next.expect;
+  // Update top bar
+  document.getElementById('topPhase').textContent = mod.phase;
+  document.getElementById('topLesson').textContent = mod.title;
 
-  setTimeout(() => {
-    addMsg(next.msg, 'bot');
-    if (next.highlight) highlightElement(next.highlight, next.hint || '');
-  }, 400);
-}
-
-function handleWrongStep(id, step) {
-  const wrongMsg = `Not quite — try clicking: **${step.hint || 'the highlighted element'}**. Look for the purple glow!`;
-  addMsg(wrongMsg, 'error-msg');
-  if (step.highlight) highlightElement(step.highlight, step.hint || '');
-}
-
-// ========== NAVIGATION ==========
-function setView(view, el) {
+  // Show correct view
   document.querySelectorAll('.subview').forEach(v => v.classList.remove('active'));
-  document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
-  const el2 = document.getElementById('view-' + view);
-  if(el2) el2.classList.add('active');
-  const titles = {home:'Home',realtime:'Realtime',acquisition:'Acquisition',engagement:'Engagement',monetization:'Monetization',retention:'Retention'};
-  document.getElementById('topbar-title').textContent = titles[view] || view;
-  if(el) el.classList.add('active');
+  const view = document.getElementById('view-' + id);
+  if (view) view.classList.add('active');
 
-  // Check if this is the expected interaction in case mode
-  handleInteraction('view-' + view);
+  // Update nav
+  document.querySelectorAll('.module-item').forEach(el => el.classList.remove('active'));
+  const navEl = document.getElementById('mod-' + id);
+  if (navEl) navEl.classList.add('active');
+
+  // Update case banner
+  document.getElementById('caseText').textContent = mod.case;
+  document.getElementById('casePhase').textContent = 'Module ' + id.split('-')[1] + ' of 3';
+
+  // Build steps
+  buildSteps(mod.steps);
+
+  // Load first step
+  runStep(0);
+
+  // Update progress
+  updateProgress();
+
+  // Clear highlights
+  clearHighlights();
 }
 
-// ========== HIGHLIGHT SYSTEM ==========
-function highlightElement(id, label) {
+// ============================================================
+//  BUILD STEPS ROW
+// ============================================================
+function buildSteps(steps) {
+  const row = document.getElementById('stepsRow');
+  row.innerHTML = '';
+  totalSteps = steps.length;
+
+  steps.forEach((step, i) => {
+    const btn = document.createElement('div');
+    btn.className = 'step-btn' + (i === 0 ? ' active' : ' locked');
+    btn.id = 'step-btn-' + i;
+    btn.innerHTML = `<div class="step-num">${i + 1}</div>${step.label}`;
+    btn.onclick = () => {
+      if (!btn.classList.contains('locked')) goToStep(i);
+    };
+    row.appendChild(btn);
+  });
+}
+
+// ============================================================
+//  RUN STEP
+// ============================================================
+function runStep(idx) {
+  const mod = MODULES[currentModule];
+  if (!mod || idx >= mod.steps.length) return;
+
+  currentStep = idx;
+  const step = mod.steps[idx];
+  pendingClick = step.expect || null;
+
+  // Update step buttons
+  document.querySelectorAll('.step-btn').forEach((btn, i) => {
+    btn.classList.remove('active', 'locked');
+    if (i < idx) btn.classList.add('done');
+    else if (i === idx) btn.classList.add('active');
+    else btn.classList.add('locked');
+  });
+
+  // Update coach
+  setCoachMsg(step.coachMsg, step.action);
+
+  // Highlight element
+  clearHighlights();
+  if (step.highlight) {
+    setTimeout(() => highlightEl(step.highlight), 300);
+  }
+
+  // Show micro question
+  if (step.showMicro) {
+    const mq = document.getElementById(step.showMicro);
+    if (mq) {
+      mq.style.display = 'block';
+      mq.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    }
+  }
+
+  // Show recap
+  if (step.showRecap) {
+    const recap = document.getElementById(step.showRecap);
+    if (recap) {
+      recap.style.display = 'block';
+      recap.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      // Enable next module
+      unlockNext();
+    }
+    pendingClick = null;
+    document.getElementById('coachBtn').textContent = 'Next module →';
+    document.getElementById('coachBtn').onclick = goNextModule;
+  }
+
+  // Play audio
+  playAudio(step.audio);
+
+  // Update panel title
+  document.getElementById('stepPanelTitle').textContent = `Step ${idx + 1} of ${mod.steps.length}`;
+}
+
+// ============================================================
+//  HANDLE CLICK (dashboard interactions)
+// ============================================================
+function handleClick(id) {
+  const mod = MODULES[currentModule];
+  const step = mod.steps[currentStep];
+
+  if (pendingClick && id === pendingClick) {
+    // Correct!
+    showToast('✓ Correct!', 'success');
+    clearHighlights();
+    markStepDone(currentStep);
+    setTimeout(() => nextStep(), 600);
+  } else if (pendingClick && id !== pendingClick) {
+    // Wrong element - guide them
+    showToast('Not that one — look for the purple glow!', 'error');
+    if (step.highlight) highlightEl(step.highlight);
+  } else {
+    // No pending click - free explore
+    coachExplain(id);
+  }
+}
+
+function markStepDone(idx) {
+  const btn = document.getElementById('step-btn-' + idx);
+  if (btn) btn.classList.replace('active', 'done');
+  stepsDone.add(currentModule + '-' + idx);
+}
+
+// ============================================================
+//  NEXT STEP
+// ============================================================
+function nextStep() {
+  const mod = MODULES[currentModule];
+  if (!mod) return;
+
+  if (currentStep < mod.steps.length - 1) {
+    const nextIdx = currentStep + 1;
+    const nextBtn = document.getElementById('step-btn-' + nextIdx);
+    if (nextBtn) nextBtn.classList.remove('locked');
+    runStep(nextIdx);
+  }
+}
+
+function goToStep(idx) {
+  runStep(idx);
+}
+
+function repeatStep() {
+  runStep(currentStep);
+}
+
+// ============================================================
+//  COACH MESSAGE
+// ============================================================
+function setCoachMsg(msg, btnLabel) {
+  const el = document.getElementById('coachMsg');
+  el.innerHTML = msg
+    .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
+    .replace(/\n/g, '<br>');
+
+  const btn = document.getElementById('coachBtn');
+  btn.textContent = btnLabel === 'Answer the question' ? 'I answered it →' :
+                    btnLabel === 'View recap' ? 'See recap →' :
+                    'Next step →';
+  btn.onclick = nextStep;
+}
+
+function coachExplain(id) {
+  const explanation = EXPLANATIONS[id];
+  if (explanation) {
+    const el = document.getElementById('coachMsg');
+    el.innerHTML = explanation.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>');
+    playAudio(explanation.replace(/\*\*(.*?)\*\*/g, '$1'));
+    maximizeCoach();
+    document.getElementById('coachBtn').textContent = 'Continue lesson →';
+    document.getElementById('coachBtn').onclick = () => runStep(currentStep);
+  }
+}
+
+// ============================================================
+//  HIGHLIGHT SYSTEM
+// ============================================================
+function highlightEl(id) {
   clearHighlights();
   const el = document.getElementById(id);
-  if(!el) return;
-  el.classList.add('highlighted', 'highlighted-row');
+  if (!el) return;
 
-  // Spotlight
+  el.classList.add('highlighted');
+
   const rect = el.getBoundingClientRect();
   const overlay = document.getElementById('spotlight');
   const hole = document.getElementById('spotlightHole');
-  const lbl = document.getElementById('spotlightLabel');
+  const arrow = document.getElementById('spotlightArrow');
 
-  const pad = 8;
+  const pad = 6;
   hole.style.left = (rect.left - pad) + 'px';
   hole.style.top = (rect.top - pad) + 'px';
-  hole.style.width = (rect.width + pad*2) + 'px';
-  hole.style.height = (rect.height + pad*2) + 'px';
-  lbl.textContent = '👆 ' + label;
-  overlay.classList.add('active');
+  hole.style.width = (rect.width + pad * 2) + 'px';
+  hole.style.height = (rect.height + pad * 2) + 'px';
 
-  // Auto-clear spotlight after 5s
-  setTimeout(() => overlay.classList.remove('active'), 6000);
+  // Position arrow above or below
+  const arrowTop = rect.top - pad - 44;
+  arrow.style.left = rect.left + 'px';
+  arrow.style.top = (arrowTop > 60 ? arrowTop : rect.bottom + pad + 8) + 'px';
+  arrow.textContent = '👆 Click here';
+
+  overlay.classList.add('active');
+  setTimeout(() => overlay.classList.remove('active'), 8000);
 }
 
 function clearHighlights() {
-  document.querySelectorAll('.highlighted,.highlighted-row,.highlighted-nav').forEach(el => {
-    el.classList.remove('highlighted','highlighted-row','highlighted-nav');
-  });
+  document.querySelectorAll('.highlighted').forEach(el => el.classList.remove('highlighted'));
   document.getElementById('spotlight').classList.remove('active');
 }
 
-// ========== CASE SYSTEM ==========
-function startCase(idx) {
-  if (idx === 3) {
-    // Free explore
-    activeCase = 3;
-    casePending = null;
-    document.getElementById('caseSelectorPanel').style.display = 'none';
-    document.getElementById('aiMessages').style.display = 'flex';
-    document.getElementById('aiInputArea').style.display = 'flex';
-    document.getElementById('quickAsks').style.display = 'flex';
-    document.getElementById('aiModeBadge').textContent = 'FREE EXPLORE';
-    addMsg("🎯 **Free Explore Mode activated!**\n\nClick **anything** on the dashboard — any metric, any row, any chart — and I'll explain it instantly.\n\nOr ask me anything in the box below!", 'bot');
-    return;
+// ============================================================
+//  MICRO QUESTION
+// ============================================================
+function answerMicro(el, correct) {
+  el.classList.add(correct ? 'correct' : 'wrong');
+  if (correct) {
+    showToast('Correct! ✓', 'success');
+    setTimeout(() => nextStep(), 800);
+  } else {
+    showToast('Not quite — try again!', 'error');
+    setTimeout(() => el.classList.remove('wrong'), 1200);
   }
-
-  activeCase = idx;
-  caseStep = 0;
-  const c = CASES[idx];
-  casePending = c.steps[0].expect;
-
-  // Update UI
-  document.getElementById('caseSelectorPanel').style.display = 'none';
-  document.getElementById('aiMessages').style.display = 'flex';
-  document.getElementById('aiInputArea').style.display = 'flex';
-  document.getElementById('quickAsks').style.display = 'flex';
-  document.getElementById('aiModeBadge').textContent = 'CASE MODE';
-
-  // Show case banner
-  const banner = document.getElementById('caseBanner');
-  banner.classList.add('active');
-  document.getElementById('caseTitle').textContent = c.title;
-  updateCaseProgress();
-
-  // First message
-  addMsg(c.steps[0].msg, 'bot');
-  if(c.steps[0].highlight) highlightElement(c.steps[0].highlight, c.steps[0].hint || '');
-  if(c.steps[0].onEnter) c.steps[0].onEnter();
-
-  openAI();
 }
 
-function exitCase() {
-  activeCase = null;
-  caseStep = 0;
-  casePending = null;
-  clearHighlights();
-  clearMessages();
-  document.getElementById('caseSelectorPanel').style.display = 'block';
-  document.getElementById('aiMessages').style.display = 'none';
-  document.getElementById('aiInputArea').style.display = 'none';
-  document.getElementById('quickAsks').style.display = 'none';
-  document.getElementById('caseBanner').classList.remove('active');
-  document.getElementById('aiModeBadge').textContent = 'CHOOSE CASE';
+// ============================================================
+//  MODULE TEST
+// ============================================================
+let testAnswers = {};
+let testSubmitted = false;
 
-  // Reset data
-  document.getElementById('paid-val').textContent = '2,814';
-  document.getElementById('paid-eng').textContent = '54.8%';
-  document.getElementById('acq-paid-users').textContent = '2,814';
-  document.getElementById('acq-paid-new').textContent = '2,814';
-  document.getElementById('acq-paid-sess').textContent = '3,200';
-  document.getElementById('acq-paid-eng').textContent = '54.8%';
-  document.getElementById('acq-paid').classList.remove('highlighted-row');
+function openTest() {
+  const mod = MODULES[currentModule];
+  if (!mod?.test) return;
+  const t = mod.test;
+  testAnswers = {};
+  testSubmitted = false;
+
+  let html = `<div class="test-title">${t.title}</div>
+<div class="test-sub">${t.subtitle}</div>`;
+
+  t.questions.forEach((q, qi) => {
+    html += `<div class="test-q">
+<div class="test-q-text">${qi + 1}. ${q.q}</div>
+<div class="test-q-opts">`;
+    q.opts.forEach((opt, oi) => {
+      html += `<div class="test-opt" id="tq${qi}-${oi}" onclick="selectTestOpt(${qi},${oi})">${opt}</div>`;
+    });
+    html += `</div></div>`;
+  });
+
+  html += `<div class="test-btns">
+<button class="btn-primary" onclick="submitTest()">Submit answers</button>
+<button class="btn-secondary" onclick="closeTest()">Cancel</button>
+</div>`;
+
+  document.getElementById('testBox').innerHTML = html;
+  document.getElementById('testPanel').classList.add('open');
 }
 
-function updateCaseProgress() {
-  if (activeCase === null || activeCase === 3) return;
-  const c = CASES[activeCase];
-  const prog = document.getElementById('caseProgress');
-  prog.innerHTML = c.steps.map((_, i) =>
-    `<div class="case-step-dot ${i < caseStep ? 'done' : i === caseStep ? 'current' : ''}"></div>`
-  ).join('');
+function selectTestOpt(qi, oi) {
+  if (testSubmitted) return;
+  testAnswers[qi] = oi;
+  // Clear row selection
+  document.querySelectorAll(`[id^="tq${qi}-"]`).forEach(el => el.style.background = '');
+  document.getElementById(`tq${qi}-${oi}`).style.background = 'rgba(108,99,255,.1)';
+  document.getElementById(`tq${qi}-${oi}`).style.borderColor = 'var(--coach)';
 }
 
-// ========== AI PANEL ==========
-function openAI() {
-  aiOpen = true;
-  document.getElementById('aiPanel').classList.add('open');
-}
-function closeAI() {
-  aiOpen = false;
-  document.getElementById('aiPanel').classList.remove('open');
+function submitTest() {
+  const mod = MODULES[currentModule];
+  const t = mod.test;
+  let score = 0;
+  testSubmitted = true;
+
+  t.questions.forEach((q, qi) => {
+    const selected = testAnswers[qi];
+    if (selected === q.correct) {
+      score++;
+      document.getElementById(`tq${qi}-${selected}`).classList.add('correct');
+    } else {
+      if (selected !== undefined) document.getElementById(`tq${qi}-${selected}`).classList.add('wrong');
+      document.getElementById(`tq${qi}-${q.correct}`).classList.add('correct');
+    }
+  });
+
+  const pct = Math.round((score / t.questions.length) * 100);
+  const box = document.getElementById('testBox');
+  const scoreHtml = `
+<div class="test-score">
+  <div class="test-score-num">${pct}%</div>
+  <div style="font-size:14px;color:var(--text2);margin-top:8px">${score} of ${t.questions.length} correct</div>
+  <div style="font-size:16px;margin-top:12px">${pct >= 75 ? '🎉 Well done! Module passed.' : '📚 Review and try again.'}</div>
+  <div class="test-btns" style="margin-top:16px">
+    <button class="btn-primary" onclick="closeTest();unlockNext()">Continue →</button>
+    <button class="btn-secondary" onclick="closeTest()">Review answers</button>
+  </div>
+</div>`;
+  box.insertAdjacentHTML('beforeend', scoreHtml);
 }
 
-function addMsg(text, type, override) {
-  const msgs = document.getElementById('aiMessages');
-  const div = document.createElement('div');
-  div.className = 'msg ' + type;
-  const content = override || text;
-  div.innerHTML = content
-    .replace(/\*\*(.*?)\*\*/g,'<strong>$1</strong>')
-    .replace(/\*(.*?)\*/g,'<em>$1</em>')
-    .replace(/\n/g,'<br>')
-    .replace(/📋|🔍|🎯|✅|💰|🌟|📊|📉|⚠️|💡|🎉|👀|👆/g, m => m);
-  msgs.appendChild(div);
+function closeTest() { document.getElementById('testPanel').classList.remove('open'); }
+function closeTestBg(e) { if (e.target === document.getElementById('testPanel')) closeTest(); }
+
+// ============================================================
+//  UNLOCK NEXT MODULE
+// ============================================================
+function unlockNext() {
+  const parts = currentModule.split('-');
+  const phase = parseInt(parts[0]);
+  const num = parseInt(parts[1]);
+  const nextId = `${phase}-${num + 1}`;
+  const nextEl = document.getElementById('mod-' + nextId);
+  if (nextEl && nextEl.classList.contains('locked')) {
+    nextEl.classList.remove('locked');
+    showToast('Module unlocked: ' + (MODULES[nextId]?.title || nextId), 'info');
+  }
+  modulesDone.add(currentModule);
+  const curEl = document.getElementById('mod-' + currentModule);
+  if (curEl) curEl.classList.add('done');
+  updateProgress();
+}
+
+function goNextModule() {
+  const parts = currentModule.split('-');
+  const nextId = `${parts[0]}-${parseInt(parts[1]) + 1}`;
+  if (MODULES[nextId]) loadModule(nextId);
+}
+
+// ============================================================
+//  PROGRESS
+// ============================================================
+function updateProgress() {
+  const total = Object.keys(MODULES).length;
+  const done = modulesDone.size;
+  document.getElementById('progressText').textContent = `${done} / ${total}`;
+  document.getElementById('progressFill').style.width = `${(done / total) * 100}%`;
+}
+
+// ============================================================
+//  AUDIO (Web Speech API — free, no key needed)
+// ============================================================
+function playAudio(text) {
+  if (!text || !window.speechSynthesis) return;
+  window.speechSynthesis.cancel();
+  const clean = text.replace(/\*\*(.*?)\*\*/g, '$1').replace(/[🎉👆👋]/g, '');
+  speechUtterance = new SpeechSynthesisUtterance(clean);
+  speechUtterance.rate = 0.92;
+  speechUtterance.pitch = 1.05;
+  speechUtterance.volume = 1;
+
+  // Try to pick a good voice
+  const voices = window.speechSynthesis.getVoices();
+  const preferred = voices.find(v => v.name.includes('Google') && v.lang === 'en-US')
+    || voices.find(v => v.lang === 'en-US')
+    || voices[0];
+  if (preferred) speechUtterance.voice = preferred;
+
+  speechUtterance.onstart = () => { speaking = true; document.getElementById('audioBtn').classList.add('playing'); };
+  speechUtterance.onend = () => { speaking = false; document.getElementById('audioBtn').classList.remove('playing'); };
+  window.speechSynthesis.speak(speechUtterance);
+}
+
+function toggleAudio() {
+  if (speaking) {
+    window.speechSynthesis.cancel();
+    speaking = false;
+    document.getElementById('audioBtn').classList.remove('playing');
+  } else {
+    const mod = MODULES[currentModule];
+    if (mod?.steps[currentStep]?.audio) {
+      playAudio(mod.steps[currentStep].audio);
+    }
+  }
+}
+
+// Voices load async in some browsers
+window.speechSynthesis.onvoiceschanged = () => {};
+
+// ============================================================
+//  COACH DRAG
+// ============================================================
+function initCoachDrag() {
+  const header = document.getElementById('coachHeader');
+  const coach = document.getElementById('coach');
+
+  header.addEventListener('mousedown', e => {
+    coachDragging = true;
+    const rect = coach.getBoundingClientRect();
+    coachDragOffsetX = e.clientX - rect.left;
+    coachDragOffsetY = e.clientY - rect.top;
+    coach.style.transition = 'none';
+    e.preventDefault();
+  });
+
+  document.addEventListener('mousemove', e => {
+    if (!coachDragging) return;
+    const x = e.clientX - coachDragOffsetX;
+    const y = e.clientY - coachDragOffsetY;
+    const maxX = window.innerWidth - coach.offsetWidth;
+    const maxY = window.innerHeight - coach.offsetHeight;
+    coach.style.left = Math.max(0, Math.min(x, maxX)) + 'px';
+    coach.style.top = Math.max(0, Math.min(y, maxY)) + 'px';
+    coach.style.bottom = 'auto';
+    coach.style.right = 'auto';
+  });
+
+  document.addEventListener('mouseup', () => {
+    coachDragging = false;
+    document.getElementById('coach').style.transition = '';
+  });
+
+  // Touch support
+  header.addEventListener('touchstart', e => {
+    const t = e.touches[0];
+    coachDragging = true;
+    const rect = coach.getBoundingClientRect();
+    coachDragOffsetX = t.clientX - rect.left;
+    coachDragOffsetY = t.clientY - rect.top;
+  }, { passive: true });
+
+  document.addEventListener('touchmove', e => {
+    if (!coachDragging) return;
+    const t = e.touches[0];
+    coach.style.left = (t.clientX - coachDragOffsetX) + 'px';
+    coach.style.top = (t.clientY - coachDragOffsetY) + 'px';
+    coach.style.bottom = 'auto';
+    coach.style.right = 'auto';
+  }, { passive: true });
+
+  document.addEventListener('touchend', () => { coachDragging = false; });
+}
+
+function minimizeCoach() {
+  document.getElementById('coach').style.display = 'none';
+  document.getElementById('coachMin').classList.add('visible');
+  window.speechSynthesis.cancel();
+}
+
+function maximizeCoach() {
+  document.getElementById('coach').style.display = 'flex';
+  document.getElementById('coachMin').classList.remove('visible');
+}
+
+// ============================================================
+//  TOAST
+// ============================================================
+function showToast(msg, type = '') {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.className = 'toast ' + type + ' show';
+  setTimeout(() => t.classList.remove('show'), 2500);
+}
+
+// ============================================================
+//  PROF. JOHN (AI)
+// ============================================================
+function openJohn() { document.getElementById('johnPanel').classList.add('open'); }
+function closeJohn() { document.getElementById('johnPanel').classList.remove('open'); }
+function closeJohnBg(e) { if (e.target === document.getElementById('johnPanel')) closeJohn(); }
+
+async function sendJohn() {
+  const input = document.getElementById('johnInput');
+  const text = input.value.trim();
+  if (!text) return;
+  input.value = '';
+
+  const msgs = document.getElementById('johnMessages');
+
+  // User msg
+  const um = document.createElement('div');
+  um.className = 'john-msg user';
+  um.textContent = text;
+  msgs.appendChild(um);
+
+  // Typing
+  const typing = document.createElement('div');
+  typing.className = 'john-typing';
+  typing.innerHTML = '<div class="john-dot"></div><div class="john-dot"></div><div class="john-dot"></div>';
+  msgs.appendChild(typing);
   msgs.scrollTop = msgs.scrollHeight;
-}
-
-function clearMessages() {
-  document.getElementById('aiMessages').innerHTML = '';
-}
-
-function showTyping() {
-  const msgs = document.getElementById('aiMessages');
-  const div = document.createElement('div');
-  div.className = 'msg bot typing-indicator';
-  div.innerHTML = '<div class="typing-wrap"><div class="typing-dot"></div><div class="typing-dot"></div><div class="typing-dot"></div></div>';
-  msgs.appendChild(div);
-  msgs.scrollTop = msgs.scrollHeight;
-}
-function removeTyping() {
-  const t = document.querySelector('.typing-indicator');
-  if(t) t.remove();
-}
-
-async function freeAsk(question) {
-  openAI();
-  addMsg(question, 'user');
-  showTyping();
-  document.getElementById('aiSend').disabled = true;
 
   try {
     const res = await fetch('/api/ai', {
-      method:'POST',
-      headers:{'Content-Type':'application/json'},
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
-        message: question,
-        context: `You are an expert GA4 (Google Analytics 4) tutor inside an interactive GA4 dashboard simulator called SkillOS. 
-Teach GA4 clearly, practically, with real examples. Use **bold** for key terms. Keep responses to 3-5 paragraphs max. 
-Always end with one actionable takeaway or next step.`
+        message: text,
+        context: `You are Prof. John, a world-class GA4 expert and university professor. 
+A student is learning GA4 through an interactive simulator called SkillOS.
+They are currently studying: "${MODULES[currentModule]?.title || 'GA4'}".
+Answer their question clearly and precisely. Use examples. Keep responses under 150 words.
+Use plain text only — no markdown symbols.`
       })
     });
     const data = await res.json();
-    removeTyping();
-    addMsg(data.reply || 'Sorry, I could not get a response. Check your API key in Vercel settings.', 'bot');
-  } catch(e) {
-    removeTyping();
-    addMsg('Connection error. Make sure your backend is deployed and GEMINI_API_KEY is set in Vercel.', 'bot');
+    typing.remove();
+    const bm = document.createElement('div');
+    bm.className = 'john-msg bot';
+    bm.textContent = data.reply || 'Sorry, I could not get a response right now.';
+    msgs.appendChild(bm);
+  } catch (e) {
+    typing.remove();
+    const bm = document.createElement('div');
+    bm.className = 'john-msg bot';
+    bm.textContent = 'Connection error. Make sure the API is configured.';
+    msgs.appendChild(bm);
   }
-
-  document.getElementById('aiSend').disabled = false;
+  msgs.scrollTop = msgs.scrollHeight;
 }
 
-function sendMessage() {
-  const input = document.getElementById('aiInput');
-  const text = input.value.trim();
-  if(!text) return;
-  input.value = '';
-  input.style.height = 'auto';
-  freeAsk(text);
-}
-
-function handleKey(e) {
-  if(e.key==='Enter' && !e.shiftKey){e.preventDefault();sendMessage();}
-}
-
-document.getElementById('aiInput').addEventListener('input', function(){
-  this.style.height='auto';
-  this.style.height=Math.min(this.scrollHeight,80)+'px';
+document.getElementById('johnInput').addEventListener('keydown', e => {
+  if (e.key === 'Enter') sendJohn();
 });
 
-// ========== TOAST ==========
-function showToast(msg) {
-  const t = document.getElementById('toast');
-  t.textContent = msg;
-  t.classList.add('show');
-  setTimeout(() => t.classList.remove('show'), 2000);
-}
+// ============================================================
+//  CHARTS
+// ============================================================
+let mainChartObj;
 
-// ========== CHARTS ==========
 function initCharts() {
   const labels = [];
   const d = new Date('2025-02-16');
-  for(let i=0;i<30;i++){
-    labels.push(d.toLocaleDateString('en',{month:'short',day:'numeric'}));
-    d.setDate(d.getDate()+1);
-  }
-  const users=[620,580,710,840,920,880,760,690,830,910,980,1020,870,760,820,940,1100,1050,980,890,1020,1140,1080,960,870,1010,1120,1200,1150,1080];
-
-  const ctx = document.getElementById('mainChart').getContext('2d');
-  mainChartObj = new Chart(ctx,{
-    type:'line',
-    data:{labels,datasets:[{label:'Users',data:users,borderColor:'#1a73e8',backgroundColor:'rgba(26,115,232,.08)',fill:true,tension:.4,pointRadius:2,pointHoverRadius:5,borderWidth:2}]},
-    options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},scales:{x:{grid:{display:false},ticks:{font:{size:10},maxTicksLimit:8}},y:{grid:{color:'#f1f3f4'},ticks:{font:{size:10}}}}}
-  });
-
-  // Realtime
-  const rtEl = document.getElementById('rtChart');
-  if(rtEl){
-    const rtData = Array.from({length:30},()=>Math.floor(80+Math.random()*100));
-    rtChartObj = new Chart(rtEl.getContext('2d'),{
-      type:'bar',
-      data:{labels:Array(30).fill(''),datasets:[{data:rtData,backgroundColor:'rgba(26,115,232,.4)',borderRadius:2}]},
-      options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},scales:{x:{display:false},y:{display:false}}}
-    });
-    setInterval(()=>{
-      rtData.shift();rtData.push(Math.floor(80+Math.random()*100));
-      rtChartObj.data.datasets[0].data=[...rtData];
-      rtChartObj.update('none');
-      document.getElementById('rt-count').textContent = Math.floor(100+Math.random()*80);
-    },2000);
+  for (let i = 0; i < 30; i++) {
+    labels.push(d.toLocaleDateString('en', { month: 'short', day: 'numeric' }));
+    d.setDate(d.getDate() + 1);
   }
 
-  // Retention
-  const retEl = document.getElementById('retentionChart');
-  if(retEl){
-    retChart = new Chart(retEl.getContext('2d'),{
-      type:'line',
-      data:{
-        labels:['Week 1','Week 2','Week 3','Week 4','Week 5','Week 6','Week 7','Week 8'],
-        datasets:[
-          {label:'Jan cohort',data:[100,28,18,12,9,7,6,5],borderColor:'#1a73e8',backgroundColor:'transparent',tension:.4,pointRadius:3,borderWidth:2},
-          {label:'Feb cohort',data:[100,31,21,14,11,8,null,null],borderColor:'#34a853',backgroundColor:'transparent',tension:.4,pointRadius:3,borderWidth:2,spanGaps:false},
-        ]
+  const ctx = document.getElementById('mainChart')?.getContext('2d');
+  if (!ctx) return;
+
+  const data = [620,580,710,840,920,880,760,690,830,910,980,1020,870,760,820,940,1100,1050,980,890,1020,1140,1080,960,870,1010,1120,1200,1150,1080];
+
+  mainChartObj = new Chart(ctx, {
+    type: 'line',
+    data: {
+      labels,
+      datasets: [{
+        label: 'Users',
+        data,
+        borderColor: '#1a73e8',
+        backgroundColor: 'rgba(26,115,232,.08)',
+        fill: true,
+        tension: 0.4,
+        pointRadius: 2,
+        borderWidth: 2
+      }]
+    },
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      plugins: { legend: { display: false } },
+      scales: {
+        x: { grid: { display: false }, ticks: { font: { size: 10 }, maxTicksLimit: 8 } },
+        y: { grid: { color: '#f1f3f4' }, ticks: { font: { size: 10 } } }
       },
-      options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{position:'bottom'}},scales:{y:{title:{display:true,text:'% retained'}}}}
-    });
-  }
+      onClick: () => handleClick('mainChartSection')
+    }
+  });
 }
 
-function switchTab(btn, metric) {
-  document.querySelectorAll('.chart-tab').forEach(t=>t.classList.remove('active'));
-  btn.classList.add('active');
-  const sets={
-    users:[620,580,710,840,920,880,760,690,830,910,980,1020,870,760,820,940,1100,1050,980,890,1020,1140,1080,960,870,1010,1120,1200,1150,1080],
+function switchChart(type) {
+  if (!mainChartObj) return;
+  const sets = {
+    users:   [620,580,710,840,920,880,760,690,830,910,980,1020,870,760,820,940,1100,1050,980,890,1020,1140,1080,960,870,1010,1120,1200,1150,1080],
     sessions:[780,720,890,1040,1150,1100,950,870,1040,1140,1230,1280,1090,960,1030,1180,1380,1320,1230,1120,1280,1430,1360,1210,1100,1270,1400,1510,1440,1360],
-    revenue:[0,0,1240,0,2100,980,0,0,1840,0,2400,0,1100,0,0,2800,0,3200,0,1400,0,2600,0,1800,0,0,3100,0,2400,0]
+    revenue: [0,0,1240,0,2100,980,0,0,1840,0,2400,0,1100,0,0,2800,0,3200,0,1400,0,2600,0,1800,0,0,3100,0,2400,0]
   };
-  mainChartObj.data.datasets[0].data=sets[metric]||sets.users;
-  mainChartObj.data.datasets[0].label=metric;
+  mainChartObj.data.datasets[0].data = sets[type] || sets.users;
+  mainChartObj.data.datasets[0].label = type.charAt(0).toUpperCase() + type.slice(1);
   mainChartObj.update();
-  if(activeCase===3||activeCase===null) freeAsk('Explain the '+metric+' metric in GA4 and how I should analyze trends in this chart.');
+  handleClick('mainChartSection');
 }
-
-document.addEventListener('DOMContentLoaded', initCharts);
 </script>
 </body>
 </html>
