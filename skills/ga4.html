@@ -3,2085 +3,680 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>GA4 Professional Training – SkillOS</title>
-<link href="https://fonts.googleapis.com/css2?family=Google+Sans:wght@400;500;600&family=Roboto:wght@300;400;500&display=swap" rel="stylesheet">
+<title>GA4 Master Course – SkillOS</title>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;500;600;700;800&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
 <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
 <style>
 /* =================================================================
-   RESET & VARIABLES
+   MERGED DARK THEME (index.html) + APP LAYOUT (ga4.html)
 ================================================================= */
 *{margin:0;padding:0;box-sizing:border-box}
 :root{
-  --blue:#1a73e8;--blue-l:#e8f0fe;
-  --green:#34a853;--red:#ea4335;--yellow:#fbbc04;
-  --coach:#6c63ff;--coach-l:rgba(108,99,255,.1);
-  --text:#202124;--text2:#5f6368;
-  --border:#dadce0;--bg:#f1f3f4;--white:#fff;
-  --sidebar:#1c1c28;
+  --bg:#0a0a0f;
+  --surface:#12121a;
+  --surface2:#1c1c28;
+  --border:rgba(255,255,255,.08);
+  --text:#f0f0f8;
+  --text2:#8888aa;
+  --accent:#6c63ff;
+  --accent2:#ff6584;
+  --accent3:#43e97b;
+  --accent4:#f7971e;
+  --coach:#6c63ff;
+  --coach-l:rgba(108,99,255,.15);
+  --blue:#6c63ff;
+  --green:#43e97b;
+  --red:#ff6584;
+  --yellow:#f7971e;
+  --sidebar:#0a0a0f;
+  --white:#12121a; /* Dark mapping for panels */
 }
-html,body{height:100%;overflow:hidden}
-body{font-family:'Roboto',sans-serif;background:var(--bg);color:var(--text);display:flex;flex-direction:column}
+html,body{height:100%;overflow:hidden;background:var(--bg);color:var(--text);font-family:'DM Sans',sans-serif;display:flex;flex-direction:column}
+
+/* NOISE & ORBS (from index.html) */
+body::before{
+  content:'';position:fixed;inset:0;
+  background-image:url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.03'/%3E%3C/svg%3E");
+  pointer-events:none;z-index:0;opacity:.4;
+}
+.orb{position:fixed;border-radius:50%;filter:blur(120px);pointer-events:none;z-index:0}
+.orb1{width:600px;height:600px;background:radial-gradient(circle,rgba(108,99,255,.15),transparent 70%);top:-200px;left:-200px}
+.orb2{width:500px;height:500px;background:radial-gradient(circle,rgba(255,101,132,.1),transparent 70%);bottom:-100px;right:-100px}
 
 /* =================================================================
-   TOP BAR
+   TOP BAR (Adapted)
 ================================================================= */
 .topbar{
-  height:48px;background:var(--white);border-bottom:1px solid var(--border);
-  display:flex;align-items:center;gap:10px;padding:0 14px;
-  flex-shrink:0;z-index:50;
+  height:56px;background:rgba(10,10,15,.8);backdrop-filter:blur(20px);
+  border-bottom:1px solid var(--border);
+  display:flex;align-items:center;gap:16px;padding:0 24px;
+  flex-shrink:0;z-index:50;position:relative;
 }
-.topbar-back{color:var(--text2);font-size:11px;text-decoration:none;display:flex;align-items:center;gap:4px;white-space:nowrap}
-.topbar-back:hover{color:var(--blue)}
-.divider{width:1px;height:18px;background:var(--border);flex-shrink:0}
-.tb-phase{font-size:10px;color:var(--text2);font-weight:600;text-transform:uppercase;letter-spacing:.5px;white-space:nowrap}
-.tb-lesson{font-size:12px;font-weight:500;color:var(--text);white-space:nowrap}
+.nav-logo{font-family:'Syne',sans-serif;font-weight:800;font-size:20px;background:linear-gradient(135deg,#6c63ff,#ff6584);-webkit-background-clip:text;-webkit-text-fill-color:transparent;letter-spacing:-0.5px;text-decoration:none}
+.divider{width:1px;height:24px;background:var(--border);flex-shrink:0}
+.tb-phase{font-size:12px;color:var(--accent);font-weight:700;text-transform:uppercase;letter-spacing:1px;white-space:nowrap}
+.tb-lesson{font-size:14px;font-weight:500;color:var(--text);white-space:nowrap}
 .tb-spacer{flex:1}
-.tb-time{font-size:11px;color:var(--text2);white-space:nowrap}
-.progress-wrap{display:flex;align-items:center;gap:6px}
-.progress-bar{width:100px;height:3px;background:var(--border);border-radius:2px}
-.progress-fill{height:100%;background:var(--coach);border-radius:2px;transition:width .4s}
-.progress-text{font-size:10px;color:var(--text2);white-space:nowrap}
-.btn-audio{width:28px;height:28px;border-radius:50%;background:var(--coach-l);border:1px solid rgba(108,99,255,.3);color:var(--coach);cursor:pointer;font-size:12px;display:flex;align-items:center;justify-content:center;flex-shrink:0}
-.btn-audio.on{background:var(--coach);color:#fff}
-.btn-john{background:linear-gradient(135deg,#1a1a2e,#16213e);color:#fff;border:none;border-radius:14px;padding:5px 12px;font-size:11px;font-weight:600;cursor:pointer;white-space:nowrap}
+.progress-wrap{display:flex;align-items:center;gap:10px}
+.progress-bar{width:150px;height:4px;background:var(--surface2);border-radius:2px;overflow:hidden}
+.progress-fill{height:100%;background:linear-gradient(90deg,var(--accent),var(--accent2));border-radius:2px;transition:width .4s ease}
+.progress-text{font-size:12px;color:var(--text2);font-weight:600}
 
 /* =================================================================
-   LAYOUT
+   LAYOUT & SIDEBAR
 ================================================================= */
-.app{display:flex;flex:1;overflow:hidden}
-
-/* =================================================================
-   LEFT SIDEBAR
-================================================================= */
+.app{display:flex;flex:1;overflow:hidden;position:relative;z-index:1}
 .sidebar{
-  width:210px;min-width:210px;background:var(--sidebar);
-  display:flex;flex-direction:column;overflow-y:auto;flex-shrink:0;
+  width:240px;min-width:240px;background:rgba(18,18,26,0.6);backdrop-filter:blur(10px);
+  border-right:1px solid var(--border);
+  display:flex;flex-direction:column;overflow-y:auto;flex-shrink:0;padding:16px 0;
 }
-.sidebar-logo{
-  padding:12px 12px 8px;border-bottom:1px solid rgba(255,255,255,.07);
-  display:flex;align-items:center;gap:7px;
-}
-.sidebar-logo svg{width:20px;height:20px;flex-shrink:0}
-.sidebar-logo-text{color:#fff;font-size:11px;font-weight:600;font-family:'Google Sans',sans-serif}
-.phase-block{padding:6px 0}
-.phase-hdr{
-  font-size:9px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;
-  color:rgba(255,255,255,.28);padding:5px 12px 2px;
-}
+.phase-hdr{font-family:'Syne',sans-serif;font-size:11px;font-weight:800;letter-spacing:1.5px;text-transform:uppercase;color:var(--text2);padding:10px 16px 4px;}
 .mod-item{
-  display:flex;align-items:flex-start;gap:7px;
-  padding:7px 12px;color:rgba(255,255,255,.5);
-  font-size:10px;cursor:pointer;
-  border-radius:0 14px 14px 0;margin-right:6px;
-  transition:background .15s,color .15s;line-height:1.3;
+  display:flex;align-items:center;gap:10px;
+  padding:10px 16px;color:var(--text2);
+  font-size:13px;cursor:pointer;
+  border-left:3px solid transparent;
+  transition:all .2s;
 }
-.mod-item:hover{background:rgba(255,255,255,.06);color:rgba(255,255,255,.8)}
-.mod-item.active{background:rgba(108,99,255,.2);color:#c4b5fd}
-.mod-item.done{color:rgba(52,168,83,.7)}
-.mod-item.done .mod-dot{background:var(--green)}
-.mod-item.locked{color:rgba(255,255,255,.2);cursor:not-allowed}
-.mod-dot{width:5px;height:5px;border-radius:50%;background:rgba(255,255,255,.18);margin-top:3px;flex-shrink:0}
-.mod-item.active .mod-dot{background:var(--coach)}
-.mod-time{font-size:9px;color:rgba(255,255,255,.25);margin-top:1px}
-.mod-lessons{font-size:9px;color:rgba(255,255,255,.2)}
-.mod-meta{display:flex;flex-direction:column}
+.mod-item:hover{background:rgba(255,255,255,.03);color:var(--text)}
+.mod-item.active{background:rgba(108,99,255,.1);color:#fff;border-left-color:var(--accent)}
+.mod-item.done{color:var(--green)}
+.mod-item.locked{color:rgba(255,255,255,.15);cursor:not-allowed}
+.mod-num{font-family:'Syne',sans-serif;font-size:14px;font-weight:700;opacity:0.5;width:20px}
+.mod-item.active .mod-num{opacity:1;color:var(--accent)}
+.mod-item.done .mod-num{opacity:1;color:var(--green)}
 
 /* =================================================================
-   MAIN
+   MAIN & INSTRUCTION PANEL
 ================================================================= */
-.main{flex:1;display:flex;flex-direction:column;overflow:hidden;position:relative}
-
-/* =================================================================
-   LESSON HEADER
-================================================================= */
-.lesson-header{
-  background:var(--white);border-bottom:1px solid var(--border);
-  padding:8px 14px;display:flex;align-items:center;gap:12px;flex-shrink:0;
-}
-.lesson-tabs{display:flex;gap:0}
-.lesson-tab{
-  padding:5px 12px;font-size:11px;font-weight:500;cursor:pointer;
-  border-bottom:2px solid transparent;color:var(--text2);
-  transition:color .15s,border-color .15s;white-space:nowrap;
-}
-.lesson-tab.active{color:var(--blue);border-bottom-color:var(--blue)}
-.lesson-tab.done{color:var(--green)}
-.lesson-tab.locked{color:rgba(0,0,0,.2);cursor:not-allowed}
-
-/* =================================================================
-   CONTENT SPLIT
-================================================================= */
-.content-split{display:flex;flex:1;overflow:hidden}
-
-/* =================================================================
-   INSTRUCTION PANEL (left)
-================================================================= */
+.main{flex:1;display:flex;overflow:hidden}
 .instruction-panel{
-  width:300px;min-width:260px;max-width:360px;
-  border-right:1px solid var(--border);background:var(--white);
+  width:340px;min-width:340px;
+  border-right:1px solid var(--border);background:var(--surface);
   display:flex;flex-direction:column;overflow:hidden;flex-shrink:0;
 }
-.instruction-scroll{flex:1;overflow-y:auto;padding:14px}
-
-/* CASE BOX */
-.case-box{
-  background:linear-gradient(135deg,rgba(108,99,255,.08),rgba(26,115,232,.05));
-  border:1px solid rgba(108,99,255,.2);border-radius:10px;
-  padding:12px;margin-bottom:14px;
+.coach-banner{
+  background:linear-gradient(135deg,rgba(108,99,255,.15),rgba(255,101,132,.15));
+  border-bottom:1px solid rgba(108,99,255,.2);
+  padding:16px;flex-shrink:0;
 }
-.case-tag{font-size:9px;font-weight:700;color:var(--coach);text-transform:uppercase;letter-spacing:.8px;margin-bottom:5px}
-.case-title{font-size:12px;font-weight:600;color:var(--text);margin-bottom:4px;line-height:1.4}
-.case-body{font-size:11px;color:var(--text2);line-height:1.5}
-.case-objective{
-  background:rgba(26,115,232,.06);border-left:3px solid var(--blue);
-  padding:7px 10px;margin-top:8px;border-radius:0 6px 6px 0;
-  font-size:11px;color:var(--text);line-height:1.4;
-}
-.case-objective strong{color:var(--blue)}
+.coach-header{display:flex;align-items:center;gap:10px;margin-bottom:12px}
+.coach-avatar{width:32px;height:32px;border-radius:50%;background:rgba(108,99,255,.3);display:flex;align-items:center;justify-content:center;font-size:16px;border:1px solid var(--accent)}
+.coach-name{color:#fff;font-size:12px;font-weight:700;text-transform:uppercase;letter-spacing:1px;flex:1;font-family:'Syne',sans-serif}
+.btn-audio{width:30px;height:30px;border-radius:50%;background:var(--surface2);border:1px solid var(--border);color:var(--text);cursor:pointer;display:flex;align-items:center;justify-content:center;transition:all .2s}
+.btn-audio:hover{background:var(--accent);color:#fff;border-color:var(--accent)}
+.coach-text{font-size:14px;line-height:1.6;color:var(--text);max-height:120px;overflow-y:auto;font-weight:400}
+.coach-text strong{color:var(--accent);font-weight:600}
+.instruction-scroll{flex:1;overflow-y:auto;padding:16px}
 
-/* STEP FLOW */
-.step-flow{display:flex;flex-direction:column;gap:6px}
+/* STEP CARDS */
+.step-flow{display:flex;flex-direction:column;gap:12px}
 .step-card{
-  border:1.5px solid var(--border);border-radius:8px;
-  padding:10px 12px;cursor:pointer;
-  transition:all .2s;position:relative;
+  background:var(--surface2);border:1px solid var(--border);border-radius:12px;
+  padding:16px;cursor:pointer;transition:all .2s;position:relative;overflow:hidden;
 }
-.step-card.active{
-  border-color:var(--coach);background:var(--coach-l);
+.step-card.active{border-color:var(--accent);background:linear-gradient(135deg,rgba(108,99,255,.05),transparent)}
+.step-card.done{border-color:var(--green);background:rgba(67,233,123,.03)}
+.step-card.locked{opacity:0.4;cursor:not-allowed}
+.step-header{display:flex;align-items:center;gap:12px}
+.step-icon{
+  width:28px;height:28px;border-radius:8px;background:rgba(255,255,255,.05);
+  display:flex;align-items:center;justify-content:center;font-size:12px;color:var(--text2);
 }
-.step-card.done{border-color:var(--green);background:rgba(52,168,83,.04)}
-.step-card.locked{opacity:.4;cursor:not-allowed}
-.step-card-header{display:flex;align-items:center;gap:8px}
-.step-number{
-  width:20px;height:20px;border-radius:50%;
-  background:var(--border);color:var(--text2);
-  font-size:9px;font-weight:700;
-  display:flex;align-items:center;justify-content:center;flex-shrink:0;
-  transition:background .2s,color .2s;
-}
-.step-card.active .step-number{background:var(--coach);color:#fff}
-.step-card.done .step-number{background:var(--green);color:#fff}
-.step-label{font-size:11px;font-weight:600;color:var(--text);flex:1;line-height:1.3}
-.step-card.active .step-label{color:var(--coach)}
-.step-card.done .step-label{color:var(--green)}
-.step-desc{font-size:11px;color:var(--text2);margin-top:5px;line-height:1.5;display:none}
-.step-card.active .step-desc{display:block}
-.step-action-hint{
-  font-size:10px;font-weight:600;color:var(--coach);
-  margin-top:6px;display:none;
-  background:rgba(108,99,255,.08);border-radius:4px;padding:4px 8px;
-}
-.step-card.active .step-action-hint{display:block}
+.step-card.active .step-icon{background:rgba(108,99,255,.2);color:var(--accent)}
+.step-card.done .step-icon{background:rgba(67,233,123,.2);color:var(--green)}
+.step-label{font-size:14px;font-weight:600;color:var(--text);flex:1;font-family:'Syne',sans-serif}
+.step-action-area{margin-top:12px;display:none}
+.step-card.active .step-action-area{display:block}
 
-/* SHORT ANSWER */
-.short-answer-box{
-  background:#fafafa;border:1.5px solid var(--border);border-radius:8px;
-  padding:12px;margin-top:6px;
-}
-.sa-prompt{font-size:11px;font-weight:600;color:var(--text);margin-bottom:8px;line-height:1.4}
-.sa-hint{font-size:10px;color:var(--text2);margin-bottom:8px;font-style:italic}
-.sa-input-row{display:flex;gap:6px;align-items:center}
-.sa-input{
-  flex:1;border:1.5px solid var(--border);border-radius:6px;
-  padding:7px 10px;font-size:12px;outline:none;
-  font-family:'Roboto',sans-serif;
-}
-.sa-input:focus{border-color:var(--coach)}
-.sa-input.correct-input{border-color:var(--green);background:rgba(52,168,83,.04)}
-.sa-input.wrong-input{border-color:var(--red);animation:shake .3s}
-.sa-submit{
-  background:var(--coach);color:#fff;border:none;
-  border-radius:6px;padding:7px 12px;font-size:11px;
-  font-weight:600;cursor:pointer;white-space:nowrap;
-}
-.sa-feedback{font-size:11px;margin-top:6px;line-height:1.4;display:none}
-.sa-feedback.show{display:block}
-.sa-feedback.correct{color:var(--green)}
-.sa-feedback.wrong{color:var(--red)}
-
-/* TASK BOX */
-.task-box{
-  background:#fffde7;border:1.5px solid #f9a825;border-radius:8px;
-  padding:12px;margin-top:6px;
-}
-.task-tag{font-size:9px;font-weight:700;color:#f57f17;text-transform:uppercase;letter-spacing:.8px;margin-bottom:5px}
-.task-title{font-size:12px;font-weight:600;color:var(--text);margin-bottom:4px}
-.task-steps{list-style:none;margin-top:6px}
-.task-step{
-  font-size:11px;color:var(--text2);padding:3px 0;
-  display:flex;gap:6px;align-items:flex-start;
-}
-.task-step::before{content:'→';color:#f9a825;font-weight:700;flex-shrink:0;margin-top:0}
-.task-expected{
-  background:rgba(249,168,37,.1);border-left:2px solid #f9a825;
-  padding:5px 8px;margin-top:6px;font-size:10px;color:var(--text2);
-  border-radius:0 4px 4px 0;
-}
-.task-complete{
-  background:var(--green);color:#fff;border:none;border-radius:6px;
-  padding:6px 12px;font-size:11px;font-weight:600;
-  cursor:pointer;margin-top:8px;width:100%;
-}
-
-/* CONCEPT DEEP DIVE */
-.concept-box{
-  background:rgba(26,115,232,.04);border:1px solid rgba(26,115,232,.15);
-  border-radius:8px;padding:12px;margin-top:6px;
-}
-.concept-tag{font-size:9px;font-weight:700;color:var(--blue);text-transform:uppercase;letter-spacing:.8px;margin-bottom:5px}
-.concept-what{font-size:11px;color:var(--text);margin-bottom:5px;line-height:1.5}
-.concept-compare{font-size:11px;color:var(--text2);margin-bottom:5px;line-height:1.5;border-top:1px solid rgba(26,115,232,.1);padding-top:5px;margin-top:5px}
-.concept-good{color:var(--green);font-size:11px;margin-bottom:3px}
-.concept-bad{color:var(--red);font-size:11px;margin-bottom:5px}
-.concept-decision{
-  background:rgba(52,168,83,.08);border-radius:5px;
-  padding:6px 8px;font-size:11px;color:var(--text);margin-top:5px;
-  border-left:2px solid var(--green);
-}
-
-/* RECAP */
-.recap-box{
-  background:rgba(52,168,83,.06);border:1.5px solid rgba(52,168,83,.2);
-  border-radius:8px;padding:12px;margin-top:8px;
-}
-.recap-tag{font-size:9px;font-weight:700;color:var(--green);text-transform:uppercase;letter-spacing:.8px;margin-bottom:6px}
-.recap-point{font-size:11px;color:var(--text);padding:3px 0;display:flex;gap:6px;line-height:1.4}
-.recap-point::before{content:'✓';color:var(--green);font-weight:700;flex-shrink:0}
-
-/* DECISION BOX */
-.decision-box{
-  background:linear-gradient(135deg,rgba(234,67,53,.06),rgba(251,188,4,.04));
-  border:1.5px solid rgba(234,67,53,.2);border-radius:8px;
-  padding:12px;margin-top:8px;
-}
-.decision-tag{font-size:9px;font-weight:700;color:var(--red);text-transform:uppercase;letter-spacing:.8px;margin-bottom:5px}
-.decision-scenario{font-size:11px;font-weight:600;color:var(--text);margin-bottom:8px;line-height:1.4}
-.decision-options{display:flex;flex-direction:column;gap:5px}
-.decision-opt{
-  border:1.5px solid var(--border);border-radius:6px;padding:7px 10px;
-  font-size:11px;cursor:pointer;transition:all .15s;color:var(--text);
-}
-.decision-opt:hover{border-color:var(--coach);background:var(--coach-l)}
-.decision-opt.selected-correct{border-color:var(--green);background:rgba(52,168,83,.08);color:var(--green)}
-.decision-opt.selected-wrong{border-color:var(--red);background:rgba(234,67,53,.06);color:var(--red)}
-.decision-feedback{font-size:11px;margin-top:7px;line-height:1.5;padding:7px;border-radius:5px;display:none}
-.decision-feedback.show{display:block}
-.decision-feedback.correct{background:rgba(52,168,83,.08);color:var(--green)}
-.decision-feedback.wrong{background:rgba(234,67,53,.06);color:var(--red)}
-
-.step-next-btn{
-  background:var(--coach);color:#fff;border:none;
-  border-radius:7px;padding:8px 14px;font-size:11px;
-  font-weight:600;cursor:pointer;margin-top:8px;
-  width:100%;font-family:'Roboto',sans-serif;
-  transition:opacity .2s;display:none;
-}
-.step-next-btn.show{display:block}
-.step-next-btn:hover{opacity:.88}
+/* INPUTS / BUTTONS */
+.sa-input{width:100%;background:var(--bg);border:1px solid var(--border);color:#fff;border-radius:8px;padding:10px 14px;font-size:13px;outline:none;font-family:'DM Sans',sans-serif;margin-bottom:8px}
+.sa-input:focus{border-color:var(--accent)}
+.sa-input.correct{border-color:var(--green);background:rgba(67,233,123,.05)}
+.sa-input.wrong{border-color:var(--red)}
+.btn-primary{background:linear-gradient(135deg,var(--accent),#8b5cf6);color:#fff;border:none;border-radius:8px;padding:10px 16px;font-size:13px;font-weight:600;cursor:pointer;font-family:'DM Sans',sans-serif;width:100%;transition:opacity .2s}
+.btn-primary:hover{opacity:.9}
+.sa-feedback{font-size:12px;margin-top:8px;display:none}
 
 /* =================================================================
-   DASHBOARD (right panel)
+   DASHBOARD / FAKE UI
 ================================================================= */
-.dashboard{
-  flex:1;overflow-y:auto;padding:14px;
-  background:var(--bg);
-  position:relative;
-}
+.dashboard{flex:1;overflow-y:auto;padding:24px;background:rgba(10,10,15,.4);position:relative}
+.view{display:none;animation:fadeUp .4s ease}.view.active{display:block}
+@keyframes fadeUp{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:translateY(0)}}
 
-/* Metric cards */
-.metrics-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(145px,1fr));gap:10px;margin-bottom:14px}
-.metric-card{
-  background:var(--white);border:2px solid var(--border);
-  border-radius:8px;padding:14px;cursor:pointer;
-  transition:all .2s;position:relative;
-}
-.metric-card:hover{box-shadow:0 2px 8px rgba(0,0,0,.08)}
-.metric-card.pulsing{
-  border-color:var(--coach)!important;
-  box-shadow:0 0 0 4px rgba(108,99,255,.15)!important;
-  animation:card-pulse 2s infinite;
-}
-@keyframes card-pulse{0%,100%{box-shadow:0 0 0 4px rgba(108,99,255,.12)}50%{box-shadow:0 0 0 8px rgba(108,99,255,.04)}}
-.metric-card.correct-state{border-color:var(--green)!important;background:rgba(52,168,83,.04)}
-.metric-card.wrong-state{border-color:var(--red)!important;animation:shake .3s}
-.metric-label{font-size:10px;color:var(--text2);font-weight:600;margin-bottom:5px;text-transform:uppercase;letter-spacing:.3px}
-.metric-value{font-size:22px;font-family:'Google Sans',sans-serif;font-weight:400}
-.metric-change{font-size:10px;margin-top:3px}
-.metric-change.up{color:var(--green)}.metric-change.down{color:var(--red)}
-.metric-sub{font-size:9px;color:var(--text2);margin-top:2px}
-.info-btn{
-  position:absolute;top:7px;right:7px;
-  width:14px;height:14px;border-radius:50%;
-  background:var(--border);color:var(--text2);
-  font-size:8px;font-weight:700;cursor:pointer;
-  display:flex;align-items:center;justify-content:center;
-}
-.info-btn:hover{background:var(--coach);color:#fff}
+/* GA4 UI Mocks */
+.panel{background:var(--surface);border:1px solid var(--border);border-radius:16px;padding:24px;margin-bottom:20px}
+.panel-title{font-family:'Syne',sans-serif;font-size:18px;font-weight:700;margin-bottom:16px}
+.ui-element{background:var(--surface2);border:1px solid var(--border);border-radius:8px;padding:12px 16px;display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;cursor:pointer;transition:all .2s}
+.ui-element:hover{background:rgba(255,255,255,.05)}
+.ui-btn{background:var(--accent);color:#fff;border:none;padding:8px 16px;border-radius:6px;font-weight:600;font-size:12px;cursor:pointer}
+.ui-code{background:#000;color:#43e97b;font-family:monospace;padding:16px;border-radius:8px;font-size:12px;margin:10px 0;border:1px solid rgba(67,233,123,.2)}
+.ui-toggle{width:40px;height:22px;background:var(--border);border-radius:20px;position:relative;transition:background .3s}
+.ui-toggle::after{content:'';position:absolute;top:2px;left:2px;width:18px;height:18px;background:#fff;border-radius:50%;transition:transform .3s}
+.ui-toggle.on{background:var(--accent)}.ui-toggle.on::after{transform:translateX(18px)}
 
-/* Chart */
-.chart-section{
-  background:var(--white);border:2px solid var(--border);
-  border-radius:8px;padding:14px;margin-bottom:14px;
-}
-.chart-section.pulsing{border-color:var(--coach);box-shadow:0 0 0 4px rgba(108,99,255,.1);animation:card-pulse 2s infinite}
-.section-hdr{display:flex;align-items:center;justify-content:space-between;margin-bottom:12px}
-.section-title{font-family:'Google Sans',sans-serif;font-size:12px;font-weight:500}
-.chart-tabs{display:flex;border:1px solid var(--border);border-radius:4px;overflow:hidden}
-.ctab{padding:4px 10px;font-size:10px;cursor:pointer;border:none;background:var(--white);color:var(--text2)}
-.ctab.active{background:var(--blue-l);color:var(--blue);font-weight:600}
-.chart-wrap{height:170px}
+/* Metrics Grid */
+.metrics-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:16px;margin-bottom:20px}
+.metric-card{background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:20px;cursor:pointer;transition:transform .2s,border-color .2s}
+.metric-card:hover{transform:translateY(-2px);border-color:rgba(255,255,255,.2)}
+.m-label{font-size:12px;color:var(--text2);text-transform:uppercase;letter-spacing:1px;font-weight:600;margin-bottom:8px}
+.m-val{font-family:'Syne',sans-serif;font-size:32px;font-weight:700;margin-bottom:4px}
+.m-change{font-size:12px;font-weight:500}
+.m-change.up{color:var(--green)}.m-change.down{color:var(--red)}
 
-/* Table */
-.data-table{width:100%;border-collapse:collapse;font-size:11px}
-.data-table th{text-align:left;padding:5px 8px;color:var(--text2);font-weight:600;font-size:10px;border-bottom:2px solid var(--border);text-transform:uppercase;letter-spacing:.3px}
-.data-table td{padding:6px 8px;border-bottom:1px solid var(--border)}
-.data-table tr:last-child td{border-bottom:none}
-.data-table tr.pulsing-row td{background:var(--coach-l);border-left:3px solid var(--coach);cursor:pointer;animation:card-pulse 2s infinite}
-.data-table tr.correct-row td{background:rgba(52,168,83,.05);border-left:3px solid var(--green)}
-.data-table tr:hover td{background:#f8f9fa;cursor:pointer}
-.channel-dot{display:inline-block;width:6px;height:6px;border-radius:50%;margin-right:4px}
+/* Data Table */
+.data-table{width:100%;border-collapse:collapse;font-size:13px}
+.data-table th{text-align:left;padding:12px;color:var(--text2);border-bottom:1px solid var(--border);font-weight:600}
+.data-table td{padding:14px 12px;border-bottom:1px solid rgba(255,255,255,.03)}
+.data-table tr{transition:background .2s;cursor:pointer}
+.data-table tr:hover{background:rgba(255,255,255,.02)}
 
-/* Two col */
-.two-col{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:14px}
-
-/* Funnel */
-.funnel-wrap{margin-top:4px}
-.funnel-row{
-  display:flex;align-items:center;gap:8px;margin-bottom:8px;cursor:pointer;
-}
-.funnel-row:hover .funnel-fill-inner{opacity:.85}
-.funnel-bar-wrap{flex:1;background:#e8f0fe;border-radius:4px;height:24px;overflow:hidden;position:relative}
-.funnel-bar-wrap.pulsing{outline:2px solid var(--coach);outline-offset:2px;animation:card-pulse 2s infinite}
-.funnel-fill-inner{height:100%;background:var(--blue);border-radius:4px;opacity:.6;transition:width .5s}
-.funnel-label{font-size:10px;font-weight:600;width:90px;text-align:right;color:var(--text);white-space:nowrap}
-.funnel-num{font-size:10px;color:var(--text2);width:60px;text-align:right;white-space:nowrap}
-.funnel-pct{font-size:9px;color:var(--red);width:36px;text-align:right}
-
-/* Realtime */
-.rt-num{font-size:48px;font-family:'Google Sans',sans-serif;line-height:1}
-.pulse-dot{display:inline-block;width:7px;height:7px;background:var(--green);border-radius:50%;animation:pulse-anim 1.5s infinite}
-@keyframes pulse-anim{0%,100%{opacity:1}50%{opacity:.3}}
-
-/* Subviews */
-.view{display:none}.view.active{display:block}
-
-/* Comparison bar */
-.compare-bar{display:flex;align-items:center;gap:6px;margin-bottom:5px}
-.compare-label{width:80px;font-size:10px;color:var(--text2);text-align:right;flex-shrink:0}
-.compare-track{flex:1;background:#f1f3f4;border-radius:3px;height:16px;overflow:hidden;position:relative}
-.compare-fill{height:100%;border-radius:3px;transition:width .6s}
-.compare-value{font-size:10px;color:var(--text);width:50px;font-weight:600}
-
-/* Annotations */
-.annotation{
-  background:rgba(251,188,4,.1);border:1px solid rgba(251,188,4,.4);
-  border-radius:6px;padding:7px 10px;font-size:10px;
-  color:var(--text);margin-top:8px;display:flex;gap:6px;align-items:flex-start;
-}
-.annotation-icon{flex-shrink:0;font-size:12px}
-
-/* =================================================================
-   SPOTLIGHT
-================================================================= */
+/* SPOTLIGHT */
 .spotlight{position:fixed;inset:0;z-index:150;pointer-events:none;opacity:0;transition:opacity .3s}
 .spotlight.on{opacity:1}
-.s-hole{position:absolute;border-radius:8px;box-shadow:0 0 0 9999px rgba(0,0,0,.42);border:2px solid var(--coach);transition:all .4s cubic-bezier(.4,0,.2,1)}
-.s-label{position:absolute;background:var(--coach);color:#fff;border-radius:6px;padding:5px 10px;font-size:10px;font-weight:700;white-space:nowrap;box-shadow:0 3px 12px rgba(108,99,255,.4)}
+.s-hole{position:absolute;border-radius:12px;box-shadow:0 0 0 9999px rgba(0,0,0,.6);border:2px solid var(--accent);transition:all .4s ease}
+.pulsing{animation:pulse 2s infinite;border-color:var(--accent)!important}
+@keyframes pulse{0%,100%{box-shadow:0 0 0 0 rgba(108,99,255,.4)}50%{box-shadow:0 0 0 10px rgba(108,99,255,0)}}
 
-/* =================================================================
-   COACH
-================================================================= */
-.coach{
-  position:fixed;bottom:70px;right:14px;
-  width:280px;min-width:180px;min-height:110px;
-  background:var(--white);border:2px solid var(--coach);border-radius:14px;
-  box-shadow:0 6px 28px rgba(108,99,255,.18);
-  z-index:200;display:flex;flex-direction:column;overflow:hidden;resize:both;
-}
-.coach-hdr{
-  background:linear-gradient(135deg,#6c63ff,#8b5cf6);
-  padding:7px 10px;display:flex;align-items:center;gap:7px;
-  cursor:grab;flex-shrink:0;user-select:none;
-}
-.coach-hdr:active{cursor:grabbing}
-.coach-avatar{width:24px;height:24px;border-radius:50%;background:rgba(255,255,255,.2);display:flex;align-items:center;justify-content:center;font-size:12px;flex-shrink:0}
-.coach-name{color:#fff;font-size:10px;font-weight:700;flex:1;letter-spacing:.3px}
-.coach-min-btn{color:rgba(255,255,255,.6);background:none;border:none;cursor:pointer;font-size:12px}
-.coach-body{padding:9px 11px;flex:1;overflow-y:auto}
-.coach-text{font-size:11px;line-height:1.6;color:var(--text);margin-bottom:7px}
-.coach-text strong{color:var(--coach)}
-.coach-text em{color:var(--text2);font-style:italic}
-.coach-btn{
-  background:var(--coach);color:#fff;border:none;border-radius:6px;
-  padding:6px 12px;font-size:10px;font-weight:700;cursor:pointer;
-  width:100%;font-family:'Roboto',sans-serif;letter-spacing:.3px;
-}
-.coach-btn:hover{opacity:.88}
-.coach-bubble{position:fixed;bottom:70px;right:14px;z-index:200;background:linear-gradient(135deg,#6c63ff,#8b5cf6);border-radius:50px;padding:7px 14px;color:#fff;font-size:11px;font-weight:700;cursor:pointer;box-shadow:0 3px 14px rgba(108,99,255,.3);display:none;align-items:center;gap:5px}
-.coach-bubble.show{display:flex}
-
-/* =================================================================
-   TOAST
-================================================================= */
-.toast{position:fixed;top:58px;left:50%;transform:translateX(-50%) translateY(-8px);background:var(--text);color:#fff;border-radius:7px;padding:7px 18px;font-size:11px;font-weight:600;z-index:500;opacity:0;transition:all .25s;pointer-events:none;white-space:nowrap}
-.toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
-.toast.ok{background:var(--green)}.toast.no{background:var(--red)}.toast.info{background:var(--coach)}
-
-/* =================================================================
-   PROF. JOHN
-================================================================= */
-.john-overlay{position:fixed;inset:0;background:rgba(0,0,0,.45);z-index:600;display:none;align-items:flex-end;justify-content:flex-end;padding:14px}
-.john-overlay.open{display:flex}
-.john-box{width:360px;height:68vh;background:var(--white);border-radius:14px;display:flex;flex-direction:column;box-shadow:0 14px 44px rgba(0,0,0,.18);overflow:hidden}
-.john-hdr{background:linear-gradient(135deg,#1a1a2e,#16213e);padding:12px 14px;display:flex;align-items:center;gap:9px}
-.john-avatar-big{font-size:22px}
-.john-info-name{color:#fff;font-size:12px;font-weight:700}
-.john-info-sub{color:rgba(255,255,255,.45);font-size:9px;margin-top:1px}
-.john-close-btn{color:rgba(255,255,255,.5);background:none;border:none;font-size:16px;cursor:pointer;margin-left:auto}
-.john-msgs{flex:1;overflow-y:auto;padding:10px;display:flex;flex-direction:column;gap:7px}
-.jmsg{padding:8px 11px;border-radius:9px;font-size:11px;line-height:1.6;max-width:88%}
-.jmsg.bot{background:#f8f9fa;align-self:flex-start;border-radius:3px 9px 9px 9px}
-.jmsg.user{background:var(--blue);color:#fff;align-self:flex-end;border-radius:9px 3px 9px 9px}
-.jtyping{display:flex;gap:3px;padding:8px 11px;background:#f8f9fa;border-radius:3px 9px 9px 9px;width:fit-content}
-.jdot{width:5px;height:5px;background:var(--text2);border-radius:50%;animation:bounce .8s infinite}
-.jdot:nth-child(2){animation-delay:.15s}.jdot:nth-child(3){animation-delay:.3s}
-@keyframes bounce{0%,100%{transform:translateY(0)}50%{transform:translateY(-5px)}}
-.john-input-row{padding:9px;border-top:1px solid var(--border);display:flex;gap:6px}
-.john-input{flex:1;border:1.5px solid var(--border);border-radius:18px;padding:7px 12px;font-size:11px;outline:none;font-family:'Roboto',sans-serif}
-.john-input:focus{border-color:var(--blue)}
-.john-send-btn{width:32px;height:32px;border-radius:50%;background:var(--blue);color:#fff;border:none;cursor:pointer;font-size:13px;display:flex;align-items:center;justify-content:center}
-
-/* =================================================================
-   MODULE TEST
-================================================================= */
-.test-overlay{position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:600;display:none;align-items:center;justify-content:center;padding:14px}
-.test-overlay.open{display:flex}
-.test-box{background:var(--white);border-radius:14px;width:580px;max-width:95vw;max-height:85vh;overflow-y:auto;padding:24px}
-.test-hdr{margin-bottom:20px}
-.test-title{font-family:'Google Sans',sans-serif;font-size:18px;font-weight:500;margin-bottom:3px}
-.test-subtitle{font-size:12px;color:var(--text2)}
-.test-section{margin-bottom:22px}
-.test-section-title{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:1px;color:var(--coach);margin-bottom:12px;padding-bottom:6px;border-bottom:1px solid var(--border)}
-/* Short answer in test */
-.test-sa{margin-bottom:14px}
-.test-sa-q{font-size:12px;font-weight:500;margin-bottom:6px}
-.test-sa-input{width:100%;border:1.5px solid var(--border);border-radius:6px;padding:8px 12px;font-size:12px;outline:none;font-family:'Roboto',sans-serif}
-.test-sa-input:focus{border-color:var(--coach)}
-.test-sa-input.correct-input{border-color:var(--green);background:rgba(52,168,83,.05)}
-.test-sa-input.wrong-input{border-color:var(--red)}
-/* Action task in test */
-.test-action{
-  background:#fffde7;border:1px solid #f9a825;border-radius:8px;
-  padding:11px;margin-bottom:10px;
-}
-.test-action-title{font-size:11px;font-weight:700;color:#f57f17;margin-bottom:5px}
-.test-action-steps{font-size:11px;color:var(--text);line-height:1.7}
-.test-action-checkbox{
-  display:flex;align-items:center;gap:8px;margin-top:7px;cursor:pointer;
-  font-size:11px;color:var(--text);
-}
-.test-action-checkbox input{width:14px;height:14px;cursor:pointer}
-/* Scenario */
-.test-scenario{
-  background:rgba(108,99,255,.06);border:1px solid rgba(108,99,255,.2);
-  border-radius:8px;padding:12px;
-}
-.test-scenario-case{font-size:11px;font-weight:600;color:var(--text);margin-bottom:8px;line-height:1.4}
-.test-scenario-steps{list-style:none}
-.test-scenario-step{
-  display:flex;gap:8px;align-items:flex-start;
-  font-size:11px;color:var(--text2);padding:5px 0;
-  border-bottom:1px dashed rgba(108,99,255,.15);
-}
-.test-scenario-step:last-child{border-bottom:none}
-.test-scenario-num{
-  width:18px;height:18px;border-radius:50%;
-  background:var(--coach);color:#fff;font-size:9px;font-weight:700;
-  display:flex;align-items:center;justify-content:center;flex-shrink:0;margin-top:1px;
-}
-.test-scenario-q{flex:1}
-.test-scenario-input{
-  width:100%;border:1.5px solid rgba(108,99,255,.2);border-radius:5px;
-  padding:5px 8px;font-size:11px;margin-top:4px;outline:none;
-  font-family:'Roboto',sans-serif;background:var(--white);
-}
-.test-scenario-input:focus{border-color:var(--coach)}
-.test-submit-row{display:flex;gap:8px;margin-top:20px;justify-content:flex-end}
-.btn-submit{background:var(--coach);color:#fff;border:none;border-radius:8px;padding:9px 22px;font-size:12px;font-weight:600;cursor:pointer}
-.btn-close-test{background:var(--white);color:var(--text);border:1.5px solid var(--border);border-radius:8px;padding:9px 18px;font-size:12px;cursor:pointer}
-.test-score-panel{text-align:center;padding:14px 0}
-.test-score-num{font-size:52px;font-family:'Google Sans',sans-serif;font-weight:700;color:var(--coach)}
-.test-score-label{font-size:13px;color:var(--text2);margin-top:5px}
-.test-score-msg{font-size:15px;margin-top:12px;font-weight:500}
-
-/* =================================================================
-   ANIMATIONS
-================================================================= */
-@keyframes shake{0%,100%{transform:translateX(0)}25%{transform:translateX(-5px)}75%{transform:translateX(5px)}}
-::-webkit-scrollbar{width:4px;height:4px}
-::-webkit-scrollbar-thumb{background:var(--border);border-radius:2px}
+/* CERTIFICATE */
+.cert-overlay{position:fixed;inset:0;background:rgba(0,0,0,.8);backdrop-filter:blur(5px);z-index:999;display:none;align-items:center;justify-content:center}
+.cert-card{background:var(--surface);border:1px solid var(--accent);border-radius:24px;padding:40px;text-align:center;max-width:500px;box-shadow:0 20px 60px rgba(108,99,255,.2)}
+.cert-title{font-family:'Syne',sans-serif;font-size:32px;font-weight:800;background:linear-gradient(135deg,#6c63ff,#ff6584);-webkit-background-clip:text;-webkit-text-fill-color:transparent;margin-bottom:16px}
 </style>
 </head>
 <body>
 
-<!-- SPOTLIGHT -->
-<div class="spotlight" id="spotlight">
-  <div class="s-hole" id="sHole"></div>
-  <div class="s-label" id="sLabel">👆 Click here</div>
-</div>
+<div class="orb orb1"></div>
+<div class="orb orb2"></div>
+<div class="spotlight" id="spotlight"><div class="s-hole" id="sHole"></div></div>
 
-<!-- TOAST -->
-<div class="toast" id="toast"></div>
-
-<!-- TOP BAR -->
 <div class="topbar">
-  <a class="topbar-back" href="../index.html">← SkillOS</a>
+  <a class="nav-logo" href="#">SkillOS</a>
   <div class="divider"></div>
-  <div class="tb-phase" id="tbPhase">Phase 1</div>
+  <div class="tb-phase" id="tbPhase">GA4 MASTER</div>
   <div class="divider"></div>
-  <div class="tb-lesson" id="tbLesson">Understanding GA4</div>
+  <div class="tb-lesson" id="tbLesson">L1: Create Property</div>
   <div class="tb-spacer"></div>
-  <div class="tb-time" id="tbTime">~45 min</div>
-  <div class="divider"></div>
   <div class="progress-wrap">
     <div class="progress-bar"><div class="progress-fill" id="progressFill" style="width:0%"></div></div>
     <div class="progress-text" id="progressText">0%</div>
   </div>
-  <button class="btn-john" onclick="openJohn()">🎓 Ask Prof. John</button>
 </div>
 
-<!-- APP -->
 <div class="app">
-
-  <!-- SIDEBAR -->
   <nav class="sidebar" id="sidebar">
-    <div class="sidebar-logo">
-      <svg viewBox="0 0 192 192"><path d="M96 0C43 0 0 43 0 96s43 96 96 96 96-43 96-96S149 0 96 0z" fill="#EA4335"/><path d="M96 0v96l68 68C185 146 192 122 192 96 192 43 149 0 96 0z" fill="#FBBC04"/><path d="M96 96l68 68C146 185 122 192 96 192 70 192 46 185 28 164l68-68z" fill="#34A853"/><path d="M28 164C10 146 0 122 0 96s10-50 28-68l68 68-68 68z" fill="#4285F4"/></svg>
-      <div class="sidebar-logo-text">GA4 Professional</div>
+    <div class="phase-hdr">Course Modules</div>
+    </nav>
+
+  <div class="instruction-panel">
+    <div class="coach-banner">
+      <div class="coach-header">
+        <div class="coach-avatar">🤖</div>
+        <div class="coach-name">AI Tutor</div>
+        <button class="btn-audio" onclick="toggleAudio()" id="audioBtn">▶</button>
+      </div>
+      <div class="coach-text" id="coachText">Welcome. Let's start.</div>
     </div>
-
-    <div class="phase-block">
-      <div class="phase-hdr">Phase 1 — First Contact</div>
-      <div class="mod-item active" id="mod-1" onclick="loadModule(1)">
-        <div class="mod-dot"></div>
-        <div class="mod-meta"><span>Understanding GA4</span><span class="mod-time">3 lessons · 45 min</span></div>
-      </div>
-      <div class="mod-item locked" id="mod-2" onclick="tryLoadModule(2)">
-        <div class="mod-dot"></div>
-        <div class="mod-meta"><span>Reading Reports</span><span class="mod-time">3 lessons · 40 min</span></div>
-      </div>
+    <div class="instruction-scroll">
+      <div class="step-flow" id="stepFlow"></div>
     </div>
+  </div>
 
-    <div class="phase-block">
-      <div class="phase-hdr">Phase 2 — Traffic</div>
-      <div class="mod-item locked" id="mod-3" onclick="tryLoadModule(3)">
-        <div class="mod-dot"></div>
-        <div class="mod-meta"><span>Traffic Sources</span><span class="mod-time">4 lessons · 55 min</span></div>
-      </div>
-      <div class="mod-item locked" id="mod-4" onclick="tryLoadModule(4)">
-        <div class="mod-dot"></div>
-        <div class="mod-meta"><span>Is Traffic Worth It?</span><span class="mod-time">3 lessons · 45 min</span></div>
-      </div>
-    </div>
-
-    <div class="phase-block">
-      <div class="phase-hdr">Phase 3 — Behavior</div>
-      <div class="mod-item locked" id="mod-5" onclick="tryLoadModule(5)">
-        <div class="mod-dot"></div>
-        <div class="mod-meta"><span>User Behavior</span><span class="mod-time">4 lessons · 60 min</span></div>
-      </div>
-      <div class="mod-item locked" id="mod-6" onclick="tryLoadModule(6)">
-        <div class="mod-dot"></div>
-        <div class="mod-meta"><span>Funnel Analysis</span><span class="mod-time">3 lessons · 50 min</span></div>
-      </div>
-    </div>
-
-    <div class="phase-block">
-      <div class="phase-hdr">Phase 4 — Business</div>
-      <div class="mod-item locked" id="mod-7" onclick="tryLoadModule(7)">
-        <div class="mod-dot"></div>
-        <div class="mod-meta"><span>Revenue Tracking</span><span class="mod-time">4 lessons · 55 min</span></div>
-      </div>
-      <div class="mod-item locked" id="mod-8" onclick="tryLoadModule(8)">
-        <div class="mod-dot"></div>
-        <div class="mod-meta"><span>Campaign ROI</span><span class="mod-time">3 lessons · 45 min</span></div>
-      </div>
-    </div>
-
-    <div class="phase-block">
-      <div class="phase-hdr">Phase 5 — Advanced</div>
-      <div class="mod-item locked" id="mod-9" onclick="tryLoadModule(9)">
-        <div class="mod-dot"></div>
-        <div class="mod-meta"><span>Explorations</span><span class="mod-time">4 lessons · 60 min</span></div>
-      </div>
-      <div class="mod-item locked" id="mod-10" onclick="tryLoadModule(10)">
-        <div class="mod-dot"></div>
-        <div class="mod-meta"><span>Segments & Cohorts</span><span class="mod-time">3 lessons · 50 min</span></div>
-      </div>
-    </div>
-    <div style="height:20px"></div>
-  </nav>
-
-  <!-- MAIN -->
-  <div class="main">
-
-    <!-- LESSON HEADER TABS -->
-    <div class="lesson-header" id="lessonHeader">
-      <div class="lesson-tabs" id="lessonTabs"></div>
-      <div style="margin-left:auto;display:flex;gap:6px">
-        <button onclick="openTest()" style="border:1px solid var(--border);border-radius:6px;padding:4px 10px;font-size:10px;cursor:pointer;background:var(--white);color:var(--text2);font-weight:600">📝 Module Test</button>
-      </div>
-    </div>
-
-    <!-- CONTENT SPLIT -->
-    <div class="content-split">
-
-      <!-- INSTRUCTION PANEL -->
-      <div class="instruction-panel" id="instrPanel">
-        <!-- COACH BANNER fixed at top of panel -->
-        <div style="background:linear-gradient(135deg,#6c63ff,#8b5cf6);padding:10px 12px;flex-shrink:0">
-          <div style="display:flex;align-items:center;gap:8px;margin-bottom:6px">
-            <div style="width:26px;height:26px;border-radius:50%;background:rgba(255,255,255,.2);display:flex;align-items:center;justify-content:center;font-size:13px;flex-shrink:0">👨‍🏫</div>
-            <div style="color:rgba(255,255,255,.7);font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.8px;flex:1">Coach Alex</div>
-            <button id="audioBtn" onclick="toggleAudio()" title="Play / Pause" style="width:26px;height:26px;border-radius:50%;background:rgba(255,255,255,.2);border:none;color:#fff;cursor:pointer;font-size:12px;display:flex;align-items:center;justify-content:center">▶</button>
-          </div>
-          <div id="coachText" style="color:#fff;font-size:11.5px;line-height:1.6;max-height:88px;overflow-y:auto">Welcome to GA4!</div>
-          <button id="coachBtn" onclick="advanceStep()" style="background:rgba(255,255,255,.2);color:#fff;border:1px solid rgba(255,255,255,.3);border-radius:6px;padding:5px 12px;font-size:10px;font-weight:700;cursor:pointer;margin-top:7px;width:100%;font-family:'Roboto',sans-serif;letter-spacing:.3px">Continue →</button>
-        </div>
-        <!-- LESSON TABS -->
-        <div id="lessonTabsRow" style="display:flex;border-bottom:1px solid var(--border);flex-shrink:0;overflow-x:auto"></div>
-        <div class="instruction-scroll" id="instrScroll">
-          <!-- Injected by JS -->
+  <div class="dashboard" id="dashboard">
+    <div id="view-1" class="view">
+      <div class="panel">
+        <div class="panel-title">Admin: Account Setup</div>
+        <p style="color:var(--text2);margin-bottom:20px">Set up your analytics container.</p>
+        <div class="ui-element" id="btn-create-prop">
+          <div><strong>Property Setup</strong><br><span style="color:var(--text2);font-size:12px">Create a new GA4 property to collect data.</span></div>
+          <button class="ui-btn">+ Create Property</button>
         </div>
       </div>
+    </div>
 
-      <!-- DASHBOARD -->
-      <div class="dashboard" id="dashboard">
-
-        <!-- MODULE 1 VIEWS -->
-        <div id="view-1-1" class="view active">
-          <!-- Overview metrics -->
-          <div class="metrics-grid">
-            <div class="metric-card" id="m-users" onclick="dashClick('m-users')">
-              <div class="info-btn" onclick="event.stopPropagation();showConcept('users')">?</div>
-              <div class="metric-label">Active Users</div>
-              <div class="metric-value">24,821</div>
-              <div class="metric-change up">▲ 12.4% vs last month</div>
-              <div class="metric-sub">Last 30 days</div>
-            </div>
-            <div class="metric-card" id="m-newusers" onclick="dashClick('m-newusers')">
-              <div class="info-btn" onclick="event.stopPropagation();showConcept('newusers')">?</div>
-              <div class="metric-label">New Users</div>
-              <div class="metric-value">18,204</div>
-              <div class="metric-change up">▲ 8.7% vs last month</div>
-              <div class="metric-sub">First-time visitors</div>
-            </div>
-            <div class="metric-card" id="m-engtime" onclick="dashClick('m-engtime')">
-              <div class="info-btn" onclick="event.stopPropagation();showConcept('engtime')">?</div>
-              <div class="metric-label">Avg Engagement Time</div>
-              <div class="metric-value">3m 24s</div>
-              <div class="metric-change down">▼ 2.1% vs last month</div>
-              <div class="metric-sub">Per session</div>
-            </div>
-            <div class="metric-card" id="m-engrate" onclick="dashClick('m-engrate')">
-              <div class="info-btn" onclick="event.stopPropagation();showConcept('engrate')">?</div>
-              <div class="metric-label">Engagement Rate</div>
-              <div class="metric-value">65.8%</div>
-              <div class="metric-change up">▲ 3.1% vs last month</div>
-              <div class="metric-sub">Sessions ≥10s or action</div>
-            </div>
-            <div class="metric-card" id="m-events" onclick="dashClick('m-events')">
-              <div class="info-btn" onclick="event.stopPropagation();showConcept('events')">?</div>
-              <div class="metric-label">Event Count</div>
-              <div class="metric-value">312,488</div>
-              <div class="metric-change up">▲ 22.8% vs last month</div>
-              <div class="metric-sub">All tracked actions</div>
-            </div>
-            <div class="metric-card" id="m-revenue" onclick="dashClick('m-revenue')">
-              <div class="info-btn" onclick="event.stopPropagation();showConcept('revenue')">?</div>
-              <div class="metric-label">Total Revenue</div>
-              <div class="metric-value">$18,420</div>
-              <div class="metric-change up">▲ 28.4% vs last month</div>
-              <div class="metric-sub">From purchase events</div>
-            </div>
-          </div>
-
-          <div class="chart-section" id="main-chart-section">
-            <div class="section-hdr">
-              <div class="section-title">Users over time — last 30 days</div>
-              <div class="chart-tabs">
-                <button class="ctab active" onclick="switchMainChart('users',this)">Users</button>
-                <button class="ctab" onclick="switchMainChart('sessions',this)">Sessions</button>
-                <button class="ctab" onclick="switchMainChart('revenue',this)">Revenue</button>
-              </div>
-            </div>
-            <div class="chart-wrap"><canvas id="mainChart"></canvas></div>
-          </div>
-
-          <div class="annotation" id="ann-down">
-            <div class="annotation-icon">⚠️</div>
-            <div>Engagement time is <strong>down 2.1%</strong> even though users are up. This means users are visiting but not staying as long — worth investigating.</div>
-          </div>
+    <div id="view-2" class="view">
+      <div class="panel">
+        <div class="panel-title">Web Stream Details</div>
+        <p style="color:var(--text2);margin-bottom:20px">Install your Google tag to start collecting data.</p>
+        <div class="ui-code" id="btn-copy-tag">
+          &lt;!-- Google tag (gtag.js) --&gt;<br>
+          &lt;script async src="https://www.googletagmanager.com/gtag/js?id=G-12345XYZ"&gt;&lt;/script&gt;<br>
+          &lt;script&gt;<br>
+            &nbsp;&nbsp;window.dataLayer = window.dataLayer || [];<br>
+            &nbsp;&nbsp;function gtag(){dataLayer.push(arguments);}<br>
+            &nbsp;&nbsp;gtag('js', new Date());<br>
+            &nbsp;&nbsp;gtag('config', 'G-12345XYZ');<br>
+          &lt;/script&gt;
         </div>
-
-        <!-- VIEW 1-2: Channels -->
-        <div id="view-1-2" class="view">
-          <div class="chart-section" id="channel-section">
-            <div class="section-hdr"><div class="section-title">Traffic Acquisition — Session Default Channel Group</div></div>
-            <table class="data-table" id="channel-table">
-              <thead><tr><th>Channel</th><th>Users</th><th>New Users</th><th>Sessions</th><th>Eng. Rate</th><th>Avg Eng. Time</th><th>Revenue</th></tr></thead>
-              <tbody>
-                <tr id="ch-organic" onclick="dashClick('ch-organic')"><td><span class="channel-dot" style="background:#4285f4"></span>Organic Search</td><td>9,840</td><td>7,120</td><td>12,210</td><td>71.2%</td><td>4m 12s</td><td>$7,840</td></tr>
-                <tr id="ch-direct" onclick="dashClick('ch-direct')"><td><span class="channel-dot" style="background:#34a853"></span>Direct</td><td>6,102</td><td>2,840</td><td>7,440</td><td>58.4%</td><td>2m 44s</td><td>$4,120</td></tr>
-                <tr id="ch-social" onclick="dashClick('ch-social')"><td><span class="channel-dot" style="background:#fbbc04"></span>Organic Social</td><td>3,892</td><td>3,100</td><td>4,501</td><td>62.1%</td><td>2m 01s</td><td>$2,100</td></tr>
-                <tr id="ch-paid" onclick="dashClick('ch-paid')"><td><span class="channel-dot" style="background:#ea4335"></span>Paid Search</td><td>2,814</td><td>2,814</td><td>3,200</td><td>54.8%</td><td>1m 52s</td><td>$3,210</td></tr>
-                <tr id="ch-email" onclick="dashClick('ch-email')"><td><span class="channel-dot" style="background:#a142f4"></span>Email</td><td>1,240</td><td>310</td><td>1,490</td><td>78.3%</td><td>5m 10s</td><td>$980</td></tr>
-                <tr id="ch-referral" onclick="dashClick('ch-referral')"><td><span class="channel-dot" style="background:#24c1e0"></span>Referral</td><td>933</td><td>620</td><td>1,100</td><td>66.7%</td><td>3m 20s</td><td>$170</td></tr>
-              </tbody>
-            </table>
-          </div>
-
-          <!-- Channel comparison bars -->
-          <div class="chart-section" id="channel-compare">
-            <div class="section-hdr"><div class="section-title">Engagement Rate by Channel — Visual Comparison</div></div>
-            <div class="compare-bar"><div class="compare-label">Email</div><div class="compare-track"><div class="compare-fill" style="width:78.3%;background:#a142f4"></div></div><div class="compare-value">78.3%</div></div>
-            <div class="compare-bar"><div class="compare-label">Organic</div><div class="compare-track"><div class="compare-fill" style="width:71.2%;background:#4285f4"></div></div><div class="compare-value">71.2%</div></div>
-            <div class="compare-bar"><div class="compare-label">Referral</div><div class="compare-track"><div class="compare-fill" style="width:66.7%;background:#24c1e0"></div></div><div class="compare-value">66.7%</div></div>
-            <div class="compare-bar"><div class="compare-label">Social</div><div class="compare-track"><div class="compare-fill" style="width:62.1%;background:#fbbc04"></div></div><div class="compare-value">62.1%</div></div>
-            <div class="compare-bar"><div class="compare-label">Direct</div><div class="compare-track"><div class="compare-fill" style="width:58.4%;background:#34a853"></div></div><div class="compare-value">58.4%</div></div>
-            <div class="compare-bar"><div class="compare-label">Paid</div><div class="compare-track"><div class="compare-fill" style="width:54.8%;background:#ea4335"></div></div><div class="compare-value">54.8%</div></div>
-          </div>
-        </div>
-
-        <!-- VIEW 1-3: Decision & Synthesis -->
-        <div id="view-1-3" class="view">
-          <div class="metrics-grid">
-            <div class="metric-card" id="m-bounce" onclick="dashClick('m-bounce')">
-              <div class="metric-label">Bounce Rate (old UA)</div>
-              <div class="metric-value">—</div>
-              <div class="metric-change" style="color:var(--text2)">Replaced by Eng. Rate</div>
-            </div>
-            <div class="metric-card" id="m-sessions" onclick="dashClick('m-sessions')">
-              <div class="info-btn" onclick="event.stopPropagation();showConcept('sessions')">?</div>
-              <div class="metric-label">Sessions</div>
-              <div class="metric-value">31,204</div>
-              <div class="metric-change up">▲ 9.2%</div>
-            </div>
-            <div class="metric-card" id="m-spu" onclick="dashClick('m-spu')">
-              <div class="info-btn" onclick="event.stopPropagation();showConcept('spu')">?</div>
-              <div class="metric-label">Sessions / User</div>
-              <div class="metric-value">1.26</div>
-              <div class="metric-change down">▼ 0.8%</div>
-              <div class="metric-sub">Loyalty indicator</div>
-            </div>
-          </div>
-
-          <div class="chart-section">
-            <div class="section-hdr"><div class="section-title">Month vs Previous Month — Key Metrics</div></div>
-            <table class="data-table">
-              <thead><tr><th>Metric</th><th>This Month</th><th>Last Month</th><th>Change</th><th>Verdict</th></tr></thead>
-              <tbody>
-                <tr id="comp-users" onclick="dashClick('comp-users')"><td>Active Users</td><td>24,821</td><td>22,080</td><td style="color:var(--green)">▲ +12.4%</td><td style="color:var(--green)">✓ Growing</td></tr>
-                <tr id="comp-eng" onclick="dashClick('comp-eng')"><td>Engagement Time</td><td>3m 24s</td><td>3m 29s</td><td style="color:var(--red)">▼ -2.1%</td><td style="color:var(--red)">⚠ Declining</td></tr>
-                <tr id="comp-rev" onclick="dashClick('comp-rev')"><td>Revenue</td><td>$18,420</td><td>$14,330</td><td style="color:var(--green)">▲ +28.4%</td><td style="color:var(--green)">✓ Strong</td></tr>
-                <tr id="comp-paid" onclick="dashClick('comp-paid')"><td>Paid Search Eng.</td><td>54.8%</td><td>61.2%</td><td style="color:var(--red)">▼ -6.4%</td><td style="color:var(--red)">⚠ Watch</td></tr>
-              </tbody>
-            </table>
-          </div>
-
-          <div class="annotation">
-            <div class="annotation-icon">🔍</div>
-            <div><strong>Pattern detected:</strong> Traffic and revenue are growing, but engagement time is declining and paid search engagement dropped 6.4%. This suggests new users from paid channels are less engaged than organic visitors.</div>
-          </div>
-        </div>
-
-      </div><!-- /dashboard -->
-    </div><!-- /content-split -->
-  </div><!-- /main -->
-</div><!-- /app -->
-
-<!-- PROF. JOHN -->
-<div class="john-overlay" id="johnOverlay" onclick="closeJohnBg(event)">
-  <div class="john-box">
-    <div class="john-hdr">
-      <div class="john-avatar-big">🎓</div>
-      <div>
-        <div class="john-info-name">Prof. John</div>
-        <div class="john-info-sub">GA4 Expert · Deep questions only</div>
+        <button class="ui-btn" style="background:var(--surface2);border:1px solid var(--border)">Copy Code</button>
       </div>
-      <button class="john-close-btn" onclick="closeJohn()">✕</button>
     </div>
-    <div class="john-msgs" id="johnMsgs">
-      <div class="jmsg bot">Hello. I'm Prof. John. The Coach handles your lesson steps — I'm here for the deeper questions you want to explore beyond the lesson. What would you like to understand better?</div>
+
+    <div id="view-3" class="view">
+      <div class="panel">
+        <div class="panel-title">Enhanced Measurement</div>
+        <p style="color:var(--text2);margin-bottom:20px">Automatically measure interactions and content on your sites.</p>
+        <div class="ui-element" id="btn-toggle-em">
+          <div>
+            <strong>Page views, Scrolls, Outbound clicks, Site search</strong><br>
+            <span style="color:var(--text2);font-size:12px">Track essential events without code changes.</span>
+          </div>
+          <div class="ui-toggle" id="em-toggle"></div>
+        </div>
+      </div>
     </div>
-    <div class="john-input-row">
-      <input class="john-input" id="johnInput" placeholder="Ask a deeper question..." onfocus="pauseAudio()" onkeydown="if(event.key==='Enter')sendJohn()">
-      <button class="john-send-btn" onclick="sendJohn()">➤</button>
+
+    <div id="view-4" class="view">
+      <div class="panel-title" style="margin-bottom:20px">Reports snapshot</div>
+      <div class="metrics-grid">
+        <div class="metric-card" id="card-users">
+          <div class="m-label">Active Users</div>
+          <div class="m-val">12,450</div>
+          <div class="m-change up">↑ 14% vs last 28 days</div>
+        </div>
+        <div class="metric-card">
+          <div class="m-label">Event Count</div>
+          <div class="m-val">84,200</div>
+          <div class="m-change up">↑ 5%</div>
+        </div>
+        <div class="metric-card">
+          <div class="m-label">Avg Engagement Time</div>
+          <div class="m-val">1m 45s</div>
+          <div class="m-change down">↓ 2%</div>
+        </div>
+      </div>
     </div>
+
+    <div id="view-5" class="view">
+      <div class="panel">
+        <div class="panel-title">Traffic acquisition</div>
+        <table class="data-table">
+          <thead><tr><th>Session default channel group</th><th>Users</th><th>Sessions</th><th>Engagement rate</th></tr></thead>
+          <tbody>
+            <tr id="row-organic"><td>Organic Search</td><td>5,200</td><td>6,100</td><td>68%</td></tr>
+            <tr><td>Direct</td><td>3,100</td><td>3,800</td><td>55%</td></tr>
+            <tr><td>Paid Search</td><td>2,400</td><td>2,900</td><td>42%</td></tr>
+            <tr><td>Organic Social</td><td>1,750</td><td>2,000</td><td>50%</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <div id="view-6" class="view">
+      <div class="panel">
+        <div class="panel-title">Events</div>
+        <table class="data-table">
+          <thead><tr><th>Event name</th><th>Event count</th><th>Users</th></tr></thead>
+          <tbody>
+            <tr><td>page_view</td><td>45,000</td><td>12,450</td></tr>
+            <tr><td>session_start</td><td>14,800</td><td>12,450</td></tr>
+            <tr id="row-scroll"><td>scroll</td><td>12,100</td><td>8,200</td></tr>
+            <tr><td>click</td><td>8,400</td><td>5,100</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <div id="view-7" class="view">
+      <div class="panel">
+        <div class="panel-title">Admin: Key Events (Conversions)</div>
+        <table class="data-table">
+          <thead><tr><th>Event name</th><th>Mark as key event</th></tr></thead>
+          <tbody>
+            <tr><td>generate_lead</td><td><div class="ui-toggle on"></div></td></tr>
+            <tr id="row-purchase"><td>purchase</td><td><div class="ui-toggle" id="conv-toggle"></div></td></tr>
+            <tr><td>add_to_cart</td><td><div class="ui-toggle"></div></td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <div id="view-8" class="view">
+      <div class="panel-title" style="margin-bottom:20px;color:var(--accent)">📋 TechMart Case Study</div>
+      <p style="color:var(--text2);margin-bottom:24px">You are the analyst. Revenue dropped. Find the anomaly.</p>
+      <div class="metrics-grid">
+        <div class="metric-card">
+          <div class="m-label">Active Users</div>
+          <div class="m-val">42,000</div>
+          <div class="m-change up">↑ 22%</div>
+        </div>
+        <div class="metric-card" id="card-anomaly">
+          <div class="m-label">Engagement Rate</div>
+          <div class="m-val">34%</div>
+          <div class="m-change down" style="color:var(--red)">↓ 18%</div>
+        </div>
+        <div class="metric-card">
+          <div class="m-label">Revenue</div>
+          <div class="m-val">$18,400</div>
+          <div class="m-change down">↓ 15%</div>
+        </div>
+      </div>
+    </div>
+
+    <div id="view-9" class="view">
+      <div class="panel">
+        <div class="panel-title">Explorations</div>
+        <div style="display:flex;gap:20px;margin-bottom:20px">
+          <div class="ui-element" style="flex:1">Free form</div>
+          <div class="ui-element" id="btn-funnel" style="flex:1;border-color:var(--accent)">Funnel exploration</div>
+          <div class="ui-element" style="flex:1">Path exploration</div>
+        </div>
+        <div style="height:200px;background:var(--surface2);border-radius:8px;display:flex;align-items:flex-end;padding:20px;gap:10px">
+          <div style="width:100px;height:100%;background:rgba(108,99,255,.8);border-radius:4px 4px 0 0;position:relative"><span style="position:absolute;top:-20px;font-size:12px">View Item</span></div>
+          <div style="width:100px;height:40%;background:rgba(108,99,255,.5);border-radius:4px 4px 0 0;position:relative"><span style="position:absolute;top:-20px;font-size:12px">Add to Cart</span></div>
+          <div style="width:100px;height:10%;background:rgba(108,99,255,.3);border-radius:4px 4px 0 0;position:relative"><span style="position:absolute;top:-20px;font-size:12px;color:var(--red)">Purchase</span></div>
+        </div>
+      </div>
+    </div>
+
+    <div id="view-10" class="view">
+      <div class="panel">
+        <div class="panel-title">Product Links</div>
+        <p style="color:var(--text2);margin-bottom:20px">Link tools to share data.</p>
+        <div class="ui-element" id="btn-link-ads">
+          <div><strong>Google Ads Links</strong><br><span style="color:var(--text2);font-size:12px">0 linked accounts</span></div>
+          <button class="ui-btn">Link</button>
+        </div>
+      </div>
+    </div>
+
   </div>
 </div>
 
-<!-- MODULE TEST -->
-<div class="test-overlay" id="testOverlay" onclick="closeTestBg(event)">
-  <div class="test-box" id="testBox"></div>
+<div class="cert-overlay" id="cert">
+  <div class="cert-card">
+    <div class="cert-title">GA4 Master Certified</div>
+    <p>Congratulations. You have completed the 10-module GA4 simulation course and successfully analyzed the TechMart case study.</p>
+    <button class="btn-primary" onclick="location.reload()" style="margin-top:20px;width:auto">Back to Menu</button>
+  </div>
 </div>
 
 <script>
 // =================================================================
-//  COURSE DATA — Full Module 1 (3 lessons × ~10 steps each)
+// COURSE DATA (10 Lessons, I-D-E-A pattern: Explain, Demo, Do, Quiz)
 // =================================================================
-
-const COURSE = {
-  1: {
-    title: 'Understanding GA4',
-    phase: 'Phase 1 · First Contact',
-    time: '~45 min',
-    // The continuous company story
-    case: {
-      company: 'TechMart',
-      situation: 'TechMart is an e-commerce store selling tech accessories. Revenue dropped 15% last quarter. The CEO hired you as their first digital analyst. Your job: use GA4 to find out what is happening and give the CEO an answer.',
-      objective: 'By the end of this module: diagnose TechMart\'s performance using GA4\'s core metrics and write a one-paragraph briefing for the CEO.'
-    },
-    lessons: [
-      {
-        id: '1-1',
-        title: 'Lesson 1 — The Problem',
-        view: 'view-1-1',
-        steps: [
-          {
-            id: 'step-1',
-            label: 'Open the GA4 overview',
-            coach: 'Welcome to TechMart\'s GA4 account. This is the **Overview** — the first screen every analyst checks. Before we do anything, take 30 seconds and look at every number on the dashboard. What stands out to you?',
-            desc: 'This is how real analysts start: they scan the full picture before diving in. Do not click anything yet — just read the numbers.',
-            hint: '→ Spend 30 seconds reading all six metric cards',
-            action: 'observe',
-            expect: null,
-            audio: 'Welcome to TechMart\'s GA4 account. This is the Overview screen. Before we do anything, spend 30 seconds reading every number on the dashboard. Real analysts always scan the full picture first.'
-          },
-          {
-            id: 'step-2',
-            label: 'Identify what is growing',
-            coach: 'Good. Now let\'s find the **signals**. Click on the **Active Users** card. This is always the first number analysts check — it tells you if your audience is growing or shrinking.',
-            desc: 'Active Users = people who had an engaged session (10+ seconds, OR a conversion, OR 2+ pageviews). It is more accurate than "visitors" because it filters out bots and accidental clicks.',
-            hint: '→ Click the Active Users card',
-            action: 'click',
-            expect: 'm-users',
-            audio: 'Click on the Active Users card. This is the first metric real analysts check. It tells you if the audience is growing or shrinking.'
-          },
-          {
-            id: 'step-3',
-            label: 'Is the growth arrow up or down?',
-            coach: 'Active Users are up **12.4%**.\n\nNotice the green arrow (▲) next to the number. In GA4, a green arrow means the metric **increased** compared to last month.\n\nIs this good news for TechMart?',
-            desc: 'Green arrow (▲) = grew vs last month. Red arrow (▼) = shrank vs last month. This is always your first check — direction before depth.',
-            hint: '→ Look at the colour and direction of the arrow next to Active Users. Then answer below.',
-            action: 'shortanswer',
-            question: 'The arrow next to Active Users is pointing _______ . (one word: up or down)',
-            answerHint: 'Look at the metric card on the dashboard. Is the arrow pointing upward or downward?',
-            keywords: ['up', 'upward', 'up wards', 'upwards', 'growing', 'increasing'],
-            feedback: 'Correct! The green upward arrow means more users are visiting TechMart this month compared to last month. More visitors = good sign.',
-            wrongFeedback: 'Look at the Active Users card on the dashboard. Next to the number 24,821, there is a small arrow. Which way is it pointing?',
-            audio: 'Active Users are up 12.4 percent. Notice the green arrow next to the number. In GA4, a green arrow means the metric increased. Is this good news for TechMart?'
-          },
-          {
-            id: 'step-4',
-            label: 'Find the warning signal',
-            coach: 'Now click on **Avg Engagement Time**. It is the card showing 3m 24s. This metric is critical — it tells you whether users are actually interested in what they find.',
-            desc: 'Avg Engagement Time replaced "Session Duration" from old Universal Analytics. It only counts time when the user is actively using the page — not time with the tab open in the background.',
-            hint: '→ Click the Avg Engagement Time card',
-            action: 'click',
-            expect: 'm-engtime',
-            audio: 'Click on Avg Engagement Time. It tells you whether users are actually interested in what they find on the site.'
-          },
-          {
-            id: 'step-5',
-            label: 'Spot the contradiction',
-            coach: 'Did you notice the **red arrow** on engagement time? It is **down 2.1%** — while users are up 12.4%. This is a contradiction.\n\nMore people are visiting, but they are spending less time. This is a classic **traffic quality problem**. Write down your hypothesis.',
-            desc: 'When user count grows but engagement falls, it usually means: (1) New traffic is lower quality than existing traffic, (2) The site experience got worse, or (3) A new traffic source is sending less interested visitors.',
-            hint: '→ Read the annotation below the chart on the dashboard',
-            action: 'read',
-            expect: null,
-            audio: 'Notice engagement time is down 2 percent while users are up 12 percent. This is a contradiction — and a classic traffic quality problem. More people, but less interested.'
-          },
-          {
-            id: 'step-6',
-            label: 'Find the red arrow',
-            coach: 'Look at all the cards again. Most arrows are green (going up).\n\nBut one card has a **red arrow pointing down**.\n\nClick on that card — the one with the red arrow.',
-            desc: 'A red downward arrow (▼) means that metric got smaller compared to last month. This is your first warning signal.',
-            hint: '→ Look at all metric cards. Find the one with a red downward arrow. Click it.',
-            action: 'click',
-            expect: 'm-engtime',
-            audio: 'Look at all the cards. Most arrows are green going up. But one card has a red arrow pointing down. Find it and click on it.'
-          },
-          {
-            id: 'step-7',
-            label: 'Read the trend chart',
-            coach: 'Click on the **line chart** below the metrics. Switch between Users, Sessions, and Revenue using the buttons at the top right of the chart.\n\nThis is how you spot trends over time — not just a single number.',
-            desc: 'A single number never tells you everything. Always look at the trend. A metric that is "up 12%" looks different if it was steadily rising vs if it spiked last week.',
-            hint: '→ Click the chart, then switch between Users, Sessions, and Revenue',
-            action: 'click',
-            expect: 'main-chart-section',
-            audio: 'Click on the line chart. Then switch between Users, Sessions, and Revenue. Always look at trends, not just single numbers.'
-          },
-          {
-            id: 'step-8',
-            label: 'Write your first finding',
-            coach: 'Now you have enough data for your **first analyst finding**. Complete the task below. This is exactly what you would write in a real briefing to your CEO.',
-            desc: 'Real analysts write findings as: "Metric X is [direction] which suggests [cause] which may lead to [consequence]. Recommended action: [action]."',
-            hint: '→ Complete the task below',
-            action: 'task',
-            task: {
-              title: 'Task: Write Your First Finding',
-              steps: [
-                'Look at all six metrics on the dashboard',
-                'Identify the ONE metric that contradicts the overall positive trend',
-                'Write 1 sentence describing the contradiction',
-                'Write 1 sentence on what might cause this',
-              ],
-              expected: 'Expected finding: "Avg engagement time is declining (-2.1%) while active users are growing (+12.4%), which suggests new traffic is less engaged than existing visitors. This may indicate a traffic quality issue from a specific channel."',
-            },
-            audio: 'Now write your first analyst finding. Use all six metrics. Identify the contradiction. This is exactly what real analysts write for their CEOs.'
-          },
-          {
-            id: 'step-9',
-            label: 'Lesson recap',
-            coach: 'You just completed your first real GA4 analysis. Let\'s review what you found before moving to Lesson 2.',
-            desc: '',
-            hint: '→ Read the recap, then click Continue',
-            action: 'recap',
-            recap: [
-              'GA4 Overview shows 6 core metrics — always read all of them before drawing conclusions',
-              'Active Users (up 12.4%) = marketing is working, audience is growing',
-              'Avg Engagement Time (down 2.1%) = warning signal — new visitors are less interested',
-              'Revenue (up 28.4%) = strong but potentially unsustainable if engagement keeps declining',
-              'The analyst\'s job is to find CONTRADICTIONS in the data — not just report what is green',
-              'Key question for next lesson: WHICH traffic channel is bringing the low-quality visitors?'
-            ],
-            audio: 'You completed your first GA4 analysis. Review the recap, then move to Lesson 2 where we find which channel is causing the problem.'
-          }
-        ]
-      },
-      {
-        id: '1-2',
-        title: 'Lesson 2 — Finding the Source',
-        view: 'view-1-2',
-        steps: [
-          {
-            id: 'step-1',
-            label: 'Switch to traffic view',
-            coach: 'In Lesson 1 we found that engagement is dropping while users grow. Now we need to answer the CEO\'s follow-up question: **"Which channel is causing the problem?"**\n\nThe traffic table is now visible on your dashboard. Take 30 seconds to read it fully.',
-            desc: 'The Traffic Acquisition table shows every channel that sends visitors to TechMart. Each row is a different "highway" — organic search, paid ads, social media, email, direct, and referrals.',
-            hint: '→ Read the full channel table before clicking anything',
-            action: 'observe',
-            expect: null,
-            audio: 'We found engagement is dropping. Now find out which channel causes the problem. Read the full traffic table before clicking anything.'
-          },
-          {
-            id: 'step-2',
-            label: 'Find the biggest source',
-            coach: 'Now click on the **Organic Search** row. It is the biggest channel — 9,840 users. Organic search is people finding TechMart through Google without clicking an ad.',
-            desc: 'Organic Search is typically the most valuable long-term channel because: (1) It costs nothing per click, (2) Users have high intent — they searched for something specific, (3) It builds over time through SEO.',
-            hint: '→ Click the Organic Search row',
-            action: 'click',
-            expect: 'ch-organic',
-            audio: 'Click on the Organic Search row. It is the biggest channel. Organic search means people found TechMart through Google without clicking an ad.'
-          },
-          {
-            id: 'step-3',
-            label: 'Analyze organic quality',
-            coach: 'Organic Search: 71.2% engagement rate, 4m 12s avg time, $7,840 revenue. That is strong quality. These visitors are interested, stay long, and buy.\n\nNow compare: which channel has the WORST engagement rate?',
-            desc: 'When comparing channels, analysts look at three quality signals together: engagement rate, avg engagement time, and revenue per user. A channel can have high volume but low quality — or low volume but high quality.',
-            hint: '→ Look at the Eng. Rate column for every row. Find the smallest percentage.',
-            action: 'shortanswer',
-            question: 'Which channel has the lowest engagement rate? (one or two words)',
-            answerHint: 'Look at the Eng. Rate column. Read each number from top to bottom. Which number is the smallest? Then read the channel name in the first column of that row.',
-            keywords: ['paid', 'paid search', 'cpc', 'google ads', 'ads'],
-            feedback: 'Correct — Paid Search has 54.8% engagement, the lowest of all channels. And it is the only channel showing ALL new users (2,814 new = 2,814 total, meaning zero returning). This is your problem channel.',
-            wrongFeedback: 'Look at the Eng. Rate column carefully. Compare all six numbers and find the smallest one.',
-            audio: 'Organic search has 71 percent engagement and strong revenue. Now find which channel has the worst engagement rate. Look at the column.'
-          },
-          {
-            id: 'step-4',
-            label: 'Diagnose paid search',
-            coach: 'Click on the **Paid Search** row. Look at all columns carefully. You will notice something unusual about the New Users vs Total Users numbers.',
-            desc: 'When New Users = Total Users in a channel, it means zero returning users came from that channel. Every single paid visitor is a first-time visitor who never came back. This is a serious retention issue for that channel.',
-            hint: '→ Click the Paid Search row in the channel table',
-            action: 'click',
-            expect: 'ch-paid',
-            audio: 'Click on the Paid Search row. Look at all columns. Notice something unusual about new users vs total users.'
-          },
-          {
-            id: 'step-5',
-            label: 'Discover the hidden pattern',
-            coach: 'Paid Search shows 2,814 total users AND 2,814 new users. That means **every single paid visitor is a first-time visitor who never returned**.\n\nAnd the engagement rate is only 54.8% — the lowest. These users visit once and leave.\n\nAnswer: what does this tell you about TechMart\'s paid ads?',
-            desc: 'Zero returning users from paid search means one of: (1) The ads target the wrong audience, (2) The landing page does not match what the ad promised, (3) The product/price does not meet expectations of ad visitors.',
-            hint: '→ Answer the question below',
-            action: 'shortanswer',
-            question: 'Paid Search has 0 returning users and 54.8% engagement. What is the most likely problem with the ads?',
-            answerHint: 'Think about the journey: a user sees an ad, clicks it, and lands on TechMart. They leave without buying. Where in that journey might the problem be?',
-            keywords: ['mismatch', 'landing', 'page', 'audience', 'wrong', 'target', 'expectations', 'relevance', 'irrelevant'],
-            feedback: 'Exactly. The most likely cause is a mismatch between what the ad promises and what the landing page delivers. Users click expecting one thing and find another — so they leave immediately.',
-            wrongFeedback: 'Focus on the journey: user sees ad → clicks → lands on page → leaves. At which step is the problem? Hint: 54.8% engagement means nearly half leave immediately.',
-            audio: 'Paid search has zero returning users. Every paid visitor is a first-time visitor who never came back. What does this tell you about the ads?'
-          },
-          {
-            id: 'step-6',
-            label: 'Compare channels visually',
-            coach: 'Now look at the **bar chart comparison** below the table. It shows engagement rate by channel visually.\n\nThis is how you would present this finding to your CEO — a visual comparison is always clearer than a table of numbers.',
-            desc: 'Data visualization is a core analyst skill. When presenting findings: bar charts for comparisons, line charts for trends, tables for exact numbers. Always choose the format that makes the insight obvious at a glance.',
-            hint: '→ Look at the engagement rate comparison chart on the dashboard',
-            action: 'observe',
-            expect: null,
-            audio: 'Look at the visual comparison chart. This is how you present findings to a CEO — a visual makes the insight obvious at a glance.'
-          },
-          {
-            id: 'step-7',
-            label: 'Find the best channel',
-            coach: 'Look at the top of the comparison chart. **Email** has 78.3% engagement — the highest. Only 1,240 users came from email, but they spend the longest (5m 10s) and have the highest engagement.\n\nWhy do you think email users engage more?',
-            desc: 'Email subscribers are pre-qualified: they chose to receive communications from TechMart. This means they already know the brand, trust it, and are more likely to be interested in what they find. High engagement + lower volume = quality channel.',
-            hint: '→ Answer below — think about who email subscribers are',
-            action: 'shortanswer',
-            question: 'Why do email users have the highest engagement rate? Answer in 2-3 words.',
-            answerHint: 'Think about how a person becomes an email subscriber. It is a voluntary action. What does choosing to subscribe tell you about that person\'s level of interest?',
-            keywords: ['trust', 'trusted', 'loyal', 'know', 'interested', 'opted', 'subscribed', 'chose', 'intent', 'warm'],
-            feedback: 'Right. Email subscribers opted in — they already trust the brand. They are warm leads, not cold traffic. This is why email consistently outperforms in engagement across almost every industry.',
-            wrongFeedback: 'Think about HOW someone becomes an email subscriber. They gave their email address voluntarily — what does that say about their interest level?',
-            audio: 'Email has the highest engagement at 78 percent. Why? Think about who email subscribers are and why they signed up.'
-          },
-          {
-            id: 'step-8',
-            label: 'Task: Channel audit',
-            coach: 'Now complete the Channel Audit task. This is the kind of work you will do every week as an analyst. The output of this task is a table you could hand directly to your marketing manager.',
-            desc: 'A channel audit compares all sources on volume, quality, and value — then gives each channel a verdict and an action.',
-            hint: '→ Complete the task below',
-            action: 'task',
-            task: {
-              title: 'Task: Channel Quality Audit',
-              steps: [
-                'For each channel, decide: is the engagement rate GOOD (>65%), OK (55-65%), or BAD (<55%)?',
-                'Find the channel that sends the most users but has below-average engagement',
-                'Find the channel with the best engagement but lowest volume',
-                'Write one recommended action for the paid search channel',
-              ],
-              expected: 'Expected: Organic (GOOD), Email (GOOD), Referral (OK), Social (OK), Direct (OK), Paid (BAD). Paid sends 2,814 users but 54.8% engagement. Email is best quality but only 1,240 users. Recommendation: review paid search landing pages and ad targeting.',
-            },
-            audio: 'Complete the channel audit task. Classify each channel as good, okay, or bad based on engagement rate. Then write a recommendation for paid search.'
-          },
-          {
-            id: 'step-9',
-            label: 'Lesson 2 recap',
-            coach: 'You found the problem channel. Let\'s lock in what you discovered before the final lesson of this module.',
-            desc: '',
-            hint: '→ Read the recap, then continue to Lesson 3',
-            action: 'recap',
-            recap: [
-              'Organic Search (9,840 users, 71.2% eng.) = TechMart\'s most valuable channel — protect it',
-              'Paid Search (2,814 users, 54.8% eng., 0 returning) = the problem channel causing low engagement',
-              'Email (1,240 users, 78.3% eng.) = highest quality but lowest volume — needs more investment',
-              'When New Users = Total Users in a channel, it means nobody ever comes back from that source',
-              'Low engagement on paid search = likely ad-to-landing-page mismatch',
-              'Next lesson: make the decision — what does TechMart do about this?'
-            ],
-            audio: 'You found the problem channel: paid search. Zero returning users and the lowest engagement rate. Lesson 3 is where you make the decision and brief the CEO.'
-          }
-        ]
-      },
-      {
-        id: '1-3',
-        title: 'Lesson 3 — The Decision',
-        view: 'view-1-3',
-        steps: [
-          {
-            id: 'step-1',
-            label: 'Compare this month vs last',
-            coach: 'Now look at the **comparison table** on the dashboard. This shows this month vs last month for the four most important metrics.\n\nBefore you make a decision, you need to understand which metrics are moving in the wrong direction.',
-            desc: 'Comparison against previous periods is fundamental to analytics. A single number is context-free — but a number compared to last month tells a story. Always compare before concluding.',
-            hint: '→ Read the comparison table on the dashboard carefully',
-            action: 'observe',
-            expect: null,
-            audio: 'Look at the comparison table. It shows this month versus last month. Before making any decision, understand which metrics are moving in the wrong direction.'
-          },
-          {
-            id: 'step-2',
-            label: 'Find the declining metrics',
-            coach: 'Click on the **Engagement Time row** in the comparison table. It is the one in red.',
-            desc: 'When a metric turns red in a comparison, it means it declined. But declining is not always bad — it depends on the metric. Declining cost-per-click is good. Declining engagement time is bad.',
-            hint: '→ Click the Engagement Time row in the comparison table',
-            action: 'click',
-            expect: 'comp-eng',
-            audio: 'Click on the Engagement Time row — the red one. Not all declining metrics are bad, but this one is.'
-          },
-          {
-            id: 'step-3',
-            label: 'Confirm the paid search problem',
-            coach: 'Paid Search engagement dropped from 61.2% to 54.8% — a 6.4 point decline. That is significant. Click on the **Paid Search Engagement row** in the comparison table.',
-            desc: 'A 6.4 percentage point drop in engagement over one month on a paid channel usually indicates: (1) Ad copy changed and now attracts wrong audience, (2) Landing page was updated poorly, or (3) Competitors are targeting the same keywords better.',
-            hint: '→ Click the Paid Search Eng. row in the comparison table',
-            action: 'click',
-            expect: 'comp-paid',
-            audio: 'Paid search engagement dropped 6.4 percentage points in one month. Click on that row. This is a significant decline that needs attention.'
-          },
-          {
-            id: 'step-4',
-            label: 'Understand sessions vs users',
-            coach: 'Click on the **Sessions metric** card. Sessions is different from Users. One user can have multiple sessions. The ratio between them tells you about loyalty.\n\nTechMart\'s Sessions per User is 1.26 — what does that mean?',
-            desc: 'Sessions per User (SPU) measures loyalty. SPU of 1.0 = every user visits exactly once. SPU of 2.0 = users visit twice on average. TechMart\'s 1.26 means most users visit once, with a few returning for a second visit — typical for e-commerce.',
-            hint: '→ Click the Sessions card, then answer below',
-            action: 'click-then-answer',
-            expect: 'm-sessions',
-            question: 'Sessions per User = 1.26. What does this tell you about customer loyalty?',
-            answerHint: 'If most users only visit once, what does that mean for the business?',
-            keywords: ['low', 'poor', 'weak', 'once', 'single', 'not return', 'not coming back', 'rarely', 'lack'],
-            feedback: 'Correct. 1.26 sessions per user means most visitors come once and do not return. For an e-commerce store, you want SPU closer to 2.0+ for a healthy repeat purchase rate.',
-            wrongFeedback: 'If SPU is 1.26, it means on average each user has 1.26 sessions. What does it mean if most users come only once and almost never return?',
-            audio: 'Sessions per user is 1.26. Click the Sessions card, then answer what this tells you about customer loyalty.'
-          },
-          {
-            id: 'step-5',
-            label: 'The CEO briefing decision',
-            coach: 'You now have all the information you need. Time to make **the decision**. Below is the scenario — read it carefully and choose the correct course of action.',
-            desc: 'Real analysts must translate data into decisions. The decision must be specific, actionable, and backed by data. "Investigate paid search" is too vague. "Audit paid search landing pages and compare ad copy to page content" is actionable.',
-            hint: '→ Read the decision scenario and choose the correct action',
-            action: 'decision',
-            scenario: 'The CEO asks: "Our user numbers look great — up 12.4%. Should we increase the paid search budget to bring in more users?"',
-            options: [
-              { text: 'Yes — users are growing, invest more in paid search', correct: false, feedback: 'This would worsen the problem. Paid search is the channel with the LOWEST engagement (54.8%) and ZERO returning users. Spending more money to bring in users who do not engage or return is waste.' },
-              { text: 'No — audit paid search first. Low engagement (54.8%) and zero returning users means paid traffic is low quality. Fix the ad-to-page match before increasing spend.', correct: true, feedback: 'Perfect analyst answer. You identified the root cause (quality problem) before recommending action. Never invest more in a broken channel until you understand why it is broken.' },
-              { text: 'Pause all paid search immediately — it is too low quality', correct: false, feedback: 'Pausing entirely without investigation is too reactive. The right approach is to audit the problem, identify if it is fixable, then decide. Paid search does generate $3,210 in revenue despite low engagement.' },
-            ],
-            audio: 'The CEO asks whether to increase the paid search budget. You have the data. Make the right decision.'
-          },
-          {
-            id: 'step-6',
-            label: 'Write the CEO briefing',
-            coach: 'Final task. Write the actual briefing. This is what separates a great analyst from an average one: the ability to explain data to a non-technical decision maker in one clear paragraph.',
-            desc: 'CEO briefings must be: (1) Short — executives do not have time, (2) Data-backed — every claim needs a number, (3) Action-oriented — end with what to do next. Never use jargon a non-analyst would not understand.',
-            hint: '→ Complete the CEO briefing task below',
-            action: 'task',
-            task: {
-              title: 'Task: CEO Briefing Paragraph',
-              steps: [
-                'Start with the good news (users and revenue are growing)',
-                'Introduce the warning signal (engagement time declining)',
-                'Name the problem channel (paid search — lowest engagement, zero returning users)',
-                'Give the specific recommendation (audit landing pages before increasing budget)',
-              ],
-              expected: 'Example: "TechMart is growing — active users up 12.4% and revenue up 28.4%. However, avg engagement time has declined 2.1%, indicating our new traffic is less engaged. Investigation shows paid search (our newest growth channel) has a 54.8% engagement rate and zero returning users — the lowest quality of all channels. Before increasing the paid search budget, I recommend auditing our ad copy and landing pages to fix the audience-to-content mismatch."',
-            },
-            audio: 'Write the CEO briefing paragraph. Good news first, then the warning, then the problem, then the recommendation. This is the output of a real analyst.'
-          },
-          {
-            id: 'step-7',
-            label: 'Module complete — you are ready',
-            coach: 'You completed Module 1. You went from zero data to a fully reasoned CEO briefing — identifying a growing business with a hidden quality problem in one specific channel.\n\nThis is exactly what digital analysts do on day one at a new company.',
-            desc: '',
-            hint: '→ Review the module recap and take the Module Test',
-            action: 'recap',
-            recap: [
-              'GA4 Overview = scan all metrics for contradictions before diving deep',
-              'Users up + Engagement down = traffic quality problem, not a site problem',
-              'Paid Search: lowest engagement (54.8%), zero returning users = mismatched ads',
-              'Email: highest engagement (78.3%), most loyal visitors — underinvested channel',
-              'Sessions per User (1.26) = low loyalty — most users visit once and do not return',
-              'Decision: audit paid search before scaling it — fixing quality beats increasing volume',
-              'Next module: go deeper into traffic acquisition and learn to fix the paid search problem'
-            ],
-            audio: 'Module 1 complete. You identified a growing business with a hidden quality problem. This is real analyst work. Take the module test to confirm your learning.'
-          }
-        ]
-      }
-    ],
-    test: {
-      title: 'Module 1 Test',
-      subtitle: 'TechMart scenario — demonstrate your analysis skills',
-      shortAnswers: [
-        { q: 'Active Users is up 12.4% but engagement time is falling. In 2 words, what is this called?', keywords: ['quality problem', 'traffic quality', 'quality issue'] },
-        { q: 'Paid Search shows 2,814 total users and 2,814 new users. What does this mean about retention? (2 words)', keywords: ['no retention', 'zero retention', 'no returning', 'zero returning'] },
-        { q: 'Which channel has the highest engagement rate? (1 word)', keywords: ['email'] },
-        { q: 'A metric is up 15% vs last month. Is this always good news? Answer yes or no.', keywords: ['no'] },
-      ],
-      actionTasks: [
-        {
-          title: 'Action Task 1: Identify the problem metric',
-          steps: '1. Open the Overview screen\n2. Look at all 6 metrics\n3. Find the ONE metric with a red (declining) arrow\n4. Write its name and the percentage change',
-          label: 'I found the declining metric and its percentage'
-        },
-        {
-          title: 'Action Task 2: Compare two channels',
-          steps: '1. Open the Traffic Acquisition table\n2. Compare Organic Search vs Paid Search engagement rates\n3. Calculate the difference in percentage points\n4. State which one you would invest more in',
-          label: 'I compared the two channels and made a recommendation'
-        }
-      ],
-      scenario: {
-        case: 'It is your second month at TechMart. New data shows: Users up 25%, Revenue up 5%, Engagement time down 8%, Paid search is now the biggest traffic channel (was Organic Search last month).',
-        steps: [
-          { q: 'What is the most concerning metric change and why? (2-3 words for the metric)', placeholder: 'e.g. engagement time' },
-          { q: 'Which channel change most likely explains the overall decline in engagement quality? (1-2 words)', placeholder: 'e.g. paid search' },
-          { q: 'What single action would you recommend to the CEO first? Write 1 sentence.', placeholder: 'e.g. Audit paid search...' }
-        ]
-      }
-    }
+const LESSONS = [
+  {
+    title: "1. Create Property", view: "view-1",
+    steps: [
+      { type: "explain", text: "Welcome. A GA4 **Property** is a container that holds all the data for one website or app. Let's create one." },
+      { type: "demo", text: "Look at the admin panel. I've highlighted the button you need.", target: "btn-create-prop" },
+      { type: "do", text: "Click the **Create Property** button to initialize your container.", target: "btn-create-prop" },
+      { type: "quiz", text: "What is the primary purpose of a GA4 property?", answer: "container", hint: "It acts as a data c_ _ _ _ _ _ _ r." }
+    ]
+  },
+  {
+    title: "2. Install gtag.js", view: "view-2",
+    steps: [
+      { type: "explain", text: "To send data to GA4, your website needs the **Google tag (gtag.js)** installed in its HTML." },
+      { type: "demo", text: "Here is the snippet. It must be placed in the `<head>` section of every webpage.", target: "btn-copy-tag" },
+      { type: "do", text: "Click the code snippet to copy it.", target: "btn-copy-tag" },
+      { type: "quiz", text: "Where in your website's HTML do you paste gtag.js?", answer: "head", hint: "In the <h_ _ d> section." }
+    ]
+  },
+  {
+    title: "3. Enhanced Measurement", view: "view-3",
+    steps: [
+      { type: "explain", text: "**Enhanced Measurement** automatically tracks standard events like scrolls, outbound clicks, and video views without extra coding." },
+      { type: "demo", text: "It's a simple toggle in your Data Stream settings.", target: "btn-toggle-em" },
+      { type: "do", text: "Click the toggle to turn Enhanced Measurement ON.", target: "btn-toggle-em", action: () => document.getElementById('em-toggle').classList.add('on') },
+      { type: "quiz", text: "Name one thing Enhanced Measurement auto-tracks.", answer: "scroll", hint: "When a user moves down the page (s_ _ _ _ l)." }
+    ]
+  },
+  {
+    title: "4. Dashboard & Metrics", view: "view-4",
+    steps: [
+      { type: "explain", text: "Data is flowing! The overview shows core metrics. In GA4, **Active Users** means visitors who stayed 10+ seconds or triggered an event." },
+      { type: "demo", text: "This card shows your Active Users trend.", target: "card-users" },
+      { type: "do", text: "Click the Active Users card to inspect it.", target: "card-users" },
+      { type: "quiz", text: "Does Active Users measure total clicks, or engaged visitors?", answer: "engaged", hint: "It filters out bots and measures e_ _ _ _ _ d visitors." }
+    ]
+  },
+  {
+    title: "5. Acquisition Channels", view: "view-5",
+    steps: [
+      { type: "explain", text: "Where did they come from? The **Traffic Acquisition** report groups visitors by channel (Organic, Paid, Direct)." },
+      { type: "demo", text: "Organic Search means people found you via Google without you paying for ads.", target: "row-organic" },
+      { type: "do", text: "Click the Organic Search row to drill down.", target: "row-organic" },
+      { type: "quiz", text: "What channel means finding you on Google without ads?", answer: "organic", hint: "O_ _ _ _ _ c Search." }
+    ]
+  },
+  {
+    title: "6. Events", view: "view-6",
+    steps: [
+      { type: "explain", text: "In GA4, *everything* is an **Event**. Pageviews, clicks, and scrolls are all processed exactly the same way: as events." },
+      { type: "demo", text: "This is the Events table. Notice 'scroll' is listed alongside 'page_view'.", target: "row-scroll" },
+      { type: "do", text: "Click the 'scroll' event to view its details.", target: "row-scroll" },
+      { type: "quiz", text: "In GA4, a click, a pageview, or a scroll is called an...", answer: "event", hint: "It starts with an E." }
+    ]
+  },
+  {
+    title: "7. Conversions", view: "view-7",
+    steps: [
+      { type: "explain", text: "Not all events are equal. A purchase is more important than a scroll. You must mark important events as **Key Events** (formerly Conversions)." },
+      { type: "demo", text: "Find the 'purchase' event in the list.", target: "row-purchase" },
+      { type: "do", text: "Click the toggle to mark 'purchase' as a Key Event.", target: "row-purchase", action: () => document.getElementById('conv-toggle').classList.add('on') },
+      { type: "quiz", text: "What do we call a highly valuable event like a purchase?", answer: "conversion", hint: "Also known as a Key Event or C_ _ _ _ _ _ _ _ n." }
+    ]
+  },
+  {
+    title: "8. Anomalies (TechMart)", view: "view-8",
+    steps: [
+      { type: "explain", text: "Case Study: TechMart's revenue dropped. A good analyst looks for **contradictions** in the data." },
+      { type: "demo", text: "Look at the dashboard. Users are up, but something else is badly down.", target: "card-anomaly" },
+      { type: "do", text: "Click the metric with the red downward arrow.", target: "card-anomaly" },
+      { type: "quiz", text: "What does a red arrow indicate about a metric?", answer: "declining", hint: "It is going down or d_ _ _ _ _ _ _ g." }
+    ]
+  },
+  {
+    title: "9. Explorations", view: "view-9",
+    steps: [
+      { type: "explain", text: "Engagement is down. Why? Standard reports aren't enough. We use **Explorations** to build custom visualizations like Funnels." },
+      { type: "demo", text: "Funnels show exactly where users drop off between steps.", target: "btn-funnel" },
+      { type: "do", text: "Click 'Funnel exploration' to see the drop-off.", target: "btn-funnel" },
+      { type: "quiz", text: "What report shows user drop-off between steps?", answer: "funnel", hint: "F_ _ _ _ l exploration." }
+    ]
+  },
+  {
+    title: "10. Ads + Report", view: "view-10",
+    steps: [
+      { type: "explain", text: "TechMart's problem was bad Paid Ads bringing low-quality traffic. To fix this, we must link Google Ads to GA4 to see ad costs vs revenue." },
+      { type: "demo", text: "Go to Admin > Product Links.", target: "btn-link-ads" },
+      { type: "do", text: "Click 'Link' to connect Google Ads.", target: "btn-link-ads" },
+      { type: "quiz", text: "Course complete! Type YES to generate your certificate.", answer: "yes", hint: "Just type YES." }
+    ]
   }
-};
+];
 
 // =================================================================
-//  STATE
+// ENGINE STATE
 // =================================================================
-let state = {
-  module: 1,
-  lesson: 0, // index into lessons array
-  step: 0,   // index into steps array
-  stepsDone: new Set(),
-  lessonsDone: new Set(),
-  modulesDone: new Set(),
-  speaking: false,
-  coachMinimized: false,
-  dragActive: false,
-  dragOffX: 0,
-  dragOffY: 0
-};
+let currLesson = 0;
+let currStep = 0;
 
-// =================================================================
-//  INIT
-// =================================================================
-document.addEventListener('DOMContentLoaded', () => {
-  initCharts();
-  loadLesson(0);
+// Initialize Sidebar
+const sidebar = document.getElementById('sidebar');
+LESSONS.forEach((l, i) => {
+  const div = document.createElement('div');
+  div.className = 'mod-item' + (i === 0 ? ' active' : ' locked');
+  div.id = 'nav-' + i;
+  div.innerHTML = `<div class="mod-num">${i+1}</div><div>${l.title.split('. ')[1]}</div>`;
+  sidebar.appendChild(div);
 });
 
-// =================================================================
-//  LOAD LESSON
-// =================================================================
-function loadLesson(lessonIdx) {
-  const mod = COURSE[state.module];
-  if (!mod || lessonIdx >= mod.lessons.length) return;
+function init() { loadLesson(0); }
 
-  state.lesson = lessonIdx;
-  state.step = 0;
-
-  const lesson = mod.lessons[lessonIdx];
-
-  // Update topbar
-  document.getElementById('tbPhase').textContent = mod.phase;
-  document.getElementById('tbLesson').textContent = lesson.title;
-  document.getElementById('tbTime').textContent = mod.time;
-
-  // Build lesson tabs
-  buildLessonTabs(mod);
-
-  // Show correct dashboard view
+function loadLesson(idx) {
+  currLesson = idx;
+  currStep = 0;
+  
+  // Update UI
+  document.getElementById('tbLesson').textContent = LESSONS[idx].title;
   document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
-  const view = document.getElementById(lesson.view);
-  if (view) view.classList.add('active');
-
-  // Build instruction panel
-  buildStepFlow(lesson.steps);
-
-  // Run step 0
-  runStep(0);
-
-  updateProgress();
-}
-
-// =================================================================
-//  BUILD LESSON TABS
-// =================================================================
-function buildLessonTabs(mod) {
-  const tabs = document.getElementById('lessonTabsRow');
-  if (!tabs) return;
-  tabs.innerHTML = '';
-  mod.lessons.forEach((l, i) => {
-    const tab = document.createElement('div');
-    tab.style.cssText = 'padding:7px 12px;font-size:10px;font-weight:600;cursor:pointer;border-bottom:2px solid transparent;color:var(--text2);white-space:nowrap;flex-shrink:0;transition:color .15s';
-    const isDone = state.lessonsDone.has(state.module + '-' + i);
-    const isLocked = i > 0 && !state.lessonsDone.has(state.module + '-' + (i - 1)) && i > state.lesson;
-    if (i === state.lesson) { tab.style.color = 'var(--blue)'; tab.style.borderBottomColor = 'var(--blue)'; }
-    else if (isDone) { tab.style.color = 'var(--green)'; }
-    else if (isLocked) { tab.style.color = 'rgba(0,0,0,.2)'; tab.style.cursor = 'not-allowed'; }
-    tab.textContent = l.title;
-    tab.onclick = () => {
-      if (isLocked) { showToast('Complete the current lesson first', 'info'); return; }
-      loadLesson(i);
-    };
-    tabs.appendChild(tab);
-  });
-}
-
-// =================================================================
-//  BUILD STEP FLOW (instruction panel)
-// =================================================================
-function buildStepFlow(steps) {
-  const scroll = document.getElementById('instrScroll');
-  const mod = COURSE[state.module];
-  const lesson = mod.lessons[state.lesson];
-
-  let html = '';
-
-  // Case box
-  html += `<div class="case-box">
-    <div class="case-tag">📋 TechMart Case — Continuing</div>
-    <div class="case-title">${mod.case.company}: ${lesson.title}</div>
-    <div class="case-body">${lesson.steps[0].coach.split('\n')[0].replace(/\*\*(.*?)\*\*/g,'<strong>$1</strong>')}</div>
-    <div class="case-objective"><strong>Your goal:</strong> ${mod.case.objective}</div>
-  </div>`;
-
-  // Steps
-  html += '<div class="step-flow" id="stepFlow">';
-  steps.forEach((step, i) => {
-    const isDone = state.stepsDone.has(state.module + '-' + state.lesson + '-' + i);
-    const isActive = i === state.step;
-    const isLocked = i > state.step && !isDone;
-
-    html += `<div class="step-card ${isActive ? 'active' : ''} ${isDone ? 'done' : ''} ${isLocked ? 'locked' : ''}" id="sc-${i}" onclick="clickStepCard(${i})">
-      <div class="step-card-header">
-        <div class="step-number">${isDone ? '✓' : i + 1}</div>
-        <div class="step-label">${step.label}</div>
-      </div>
-      <div class="step-desc">${step.desc}</div>
-      <div class="step-action-hint" id="hint-${i}">${step.hint}</div>
-      <div id="step-content-${i}"></div>
-    </div>`;
-  });
-  html += '</div>';
-
-  scroll.innerHTML = html;
-}
-
-// =================================================================
-//  RUN STEP
-// =================================================================
-function runStep(idx) {
-  const mod = COURSE[state.module];
-  const lesson = mod.lessons[state.lesson];
-  const steps = lesson.steps;
-  if (idx >= steps.length) return;
-
-  state.step = idx;
-  const step = steps[idx];
-
-  // Update step cards
-  document.querySelectorAll('.step-card').forEach((card, i) => {
-    card.classList.remove('active', 'done', 'locked');
-    const isDone = state.stepsDone.has(state.module + '-' + state.lesson + '-' + i);
-    if (isDone) card.classList.add('done');
-    else if (i === idx) card.classList.add('active');
-    else if (i > idx) card.classList.add('locked');
+  document.getElementById(LESSONS[idx].view).classList.add('active');
+  
+  document.querySelectorAll('.mod-item').forEach((el, i) => {
+    el.className = 'mod-item' + (i < idx ? ' done' : (i === idx ? ' active' : ' locked'));
   });
 
-  // Update coach
-  updateCoach(step);
-
-  // Inject step content
-  injectStepContent(step, idx);
-
-  // Highlight dashboard element
-  clearHighlights();
-  if (step.expect) highlightEl(step.expect);
-
-  // Scroll step into view
-  const sc = document.getElementById('sc-' + idx);
-  if (sc) sc.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
-
-  // Play audio after short delay so coach banner updates first
-  if (step.audio) {
-    // Pause any existing audio first
-    pauseAudio();
-    setTimeout(() => playAudio(step.audio), 600);
-  }
-
-  updateProgress();
-}
-
-// =================================================================
-//  INJECT STEP CONTENT
-// =================================================================
-function injectStepContent(step, idx) {
-  const container = document.getElementById('step-content-' + idx);
-  if (!container) return;
-  container.innerHTML = '';
-
-  if (step.action === 'shortanswer') {
-    container.innerHTML = `
-<div class="short-answer-box" id="sa-${idx}">
-  <div class="sa-prompt">${step.question}</div>
-  <div class="sa-hint">💡 How to find the answer: ${step.answerHint}</div>
-  <div class="sa-input-row">
-    <input class="sa-input" id="sa-input-${idx}" placeholder="Type your answer..." 
-      onfocus="pauseAudio()"
-      onkeydown="if(event.key==='Enter')checkShortAnswer(${idx})">
-    <button class="sa-submit" onclick="checkShortAnswer(${idx})">Check</button>
-  </div>
-  <div class="sa-feedback" id="sa-fb-${idx}"></div>
-</div>`;
-  }
-
-  if (step.action === 'click-then-answer') {
-    container.innerHTML = `
-<div class="short-answer-box" id="sa-${idx}" style="opacity:.5;pointer-events:none">
-  <div class="sa-prompt">${step.question}</div>
-  <div class="sa-hint">💡 ${step.answerHint} — <em>click the dashboard element first</em></div>
-  <div class="sa-input-row">
-    <input class="sa-input" id="sa-input-${idx}" placeholder="Click the highlighted element first..."
-      onfocus="pauseAudio()">
-    <button class="sa-submit" onclick="checkShortAnswer(${idx})">Check</button>
-  </div>
-  <div class="sa-feedback" id="sa-fb-${idx}"></div>
-</div>`;
-  }
-
-  if (step.action === 'observe' || step.action === 'read') {
-    container.innerHTML = `
-<button class="step-next-btn show" style="display:block;background:var(--coach);color:#fff;border:none;border-radius:7px;padding:8px 14px;font-size:11px;font-weight:700;cursor:pointer;margin-top:6px;width:100%" 
-  onclick="completeStep(${idx})">I've read this → Continue</button>`;
-  }
-
-  if (step.action === 'task') {
-    const t = step.task;
-    let stepsHtml = t.steps.map(s => `<li class="task-step">${s}</li>`).join('');
-    container.innerHTML = `
-<div class="task-box">
-  <div class="task-tag">📌 Real Analyst Task</div>
-  <div class="task-title">${t.title}</div>
-  <ul class="task-steps">${stepsHtml}</ul>
-  <div class="task-expected">
-    <strong>Expected output:</strong> ${t.expected}
-  </div>
-  <button class="task-complete" onclick="completeTask(${idx})">✓ I completed this task</button>
-</div>`;
-  }
-
-  if (step.action === 'decision') {
-    let optsHtml = step.options.map((o, oi) =>
-      `<div class="decision-opt" id="dopt-${idx}-${oi}" onclick="makeDecision(${idx},${oi})">${o.text}</div>`
-    ).join('');
-    container.innerHTML = `
-<div class="decision-box">
-  <div class="decision-tag">🔴 Decision Point</div>
-  <div class="decision-scenario">${step.scenario}</div>
-  <div class="decision-options">${optsHtml}</div>
-  <div class="decision-feedback" id="d-fb-${idx}"></div>
-</div>`;
-  }
-
-  if (step.action === 'recap') {
-    let points = step.recap.map(r => `<div class="recap-point">${r}</div>`).join('');
-    container.innerHTML = `
-<div class="recap-box" id="recap-${idx}">
-  <div class="recap-tag">✓ Lesson Recap</div>
-  ${points}
-</div>
-<button class="step-next-btn show" onclick="completeLesson()">Continue to next lesson →</button>`;
-  }
-
-  if (step.action === 'read' || step.action === 'observe') {
-    container.innerHTML = `
-<button class="step-next-btn show" onclick="completeStep(${idx})">I have read this → Continue</button>`;
-  }
-}
-
-// =================================================================
-//  COACH
-// =================================================================
-function updateCoach(step) {
-  const text = document.getElementById('coachText');
-  if (text) {
-    text.innerHTML = step.coach
-      .replace(/\*\*(.*?)\*\*/g, '<strong style="color:#e0d9ff">$1</strong>')
-      .replace(/\n/g, '<br>');
-  }
-
-  const btn = document.getElementById('coachBtn');
-  if (!btn) return;
-
-  if (step.action === 'shortanswer' || step.action === 'click-then-answer') {
-    btn.textContent = 'Waiting for your answer...';
-    btn.style.opacity = '.5';
-    btn.onclick = null;
-  } else if (step.action === 'task') {
-    btn.textContent = 'Complete the task below →';
-    btn.style.opacity = '1';
-    btn.onclick = () => {
-      const taskBtn = document.querySelector('.task-complete');
-      if (taskBtn) taskBtn.scrollIntoView({ behavior: 'smooth' });
-    };
-  } else if (step.action === 'decision') {
-    btn.textContent = 'Choose an option →';
-    btn.style.opacity = '.5';
-    btn.onclick = null;
-  } else if (step.action === 'click') {
-    btn.textContent = 'Click the highlighted element →';
-    btn.style.opacity = '.5';
-    btn.onclick = null;
-  } else if (step.action === 'recap') {
-    btn.textContent = 'Next lesson →';
-    btn.style.opacity = '1';
-    btn.onclick = completeLesson;
-  } else {
-    btn.textContent = 'Continue →';
-    btn.style.opacity = '1';
-    btn.onclick = advanceStep;
-  }
-}
-
-function advanceStep() {
-  completeStep(state.step);
-}
-
-// =================================================================
-//  COMPLETE STEP
-// =================================================================
-function completeStep(idx) {
-  const key = state.module + '-' + state.lesson + '-' + idx;
-  state.stepsDone.add(key);
-
-  const mod = COURSE[state.module];
-  const lesson = mod.lessons[state.lesson];
-
-  // Mark done
-  const card = document.getElementById('sc-' + idx);
-  if (card) {
-    card.classList.remove('active');
-    card.classList.add('done');
-    const num = card.querySelector('.step-number');
-    if (num) num.textContent = '✓';
-  }
-
-  clearHighlights();
-
-  // Next step or end lesson
-  if (idx + 1 < lesson.steps.length) {
-    // Unlock next step card
-    const nextCard = document.getElementById('sc-' + (idx + 1));
-    if (nextCard) nextCard.classList.remove('locked');
-    setTimeout(() => runStep(idx + 1), 300);
-  }
-
-  updateProgress();
-}
-
-// =================================================================
-//  DASHBOARD CLICKS
-// =================================================================
-function dashClick(id) {
-  const mod = COURSE[state.module];
-  const lesson = mod.lessons[state.lesson];
-  const step = lesson.steps[state.step];
-
-  if (step.expect === id || (step.action === 'click-then-answer' && step.expect === id)) {
-    // Correct click
-    showToast('✓ Good!', 'ok');
-    clearHighlights();
-
-    if (step.action === 'click') {
-      completeStep(state.step);
-    } else if (step.action === 'click-then-answer') {
-      // Unlock the answer box
-      const sa = document.getElementById('sa-' + state.step);
-      if (sa) {
-        sa.style.opacity = '1';
-        sa.style.pointerEvents = 'auto';
-        const inp = document.getElementById('sa-input-' + state.step);
-        if (inp) {
-          inp.placeholder = 'Now type your answer...';
-          inp.focus();
-        }
-      }
-      // Update coach btn
-      const btn = document.getElementById('coachBtn');
-      btn.textContent = 'Waiting for your answer...';
-    }
-  } else if (step.expect && step.expect !== id) {
-    // Wrong click
-    showToast('Not that one — look for the purple highlight', 'no');
-    if (step.expect) highlightEl(step.expect);
-  } else {
-    // No expected click — show concept
-    showConcept(id);
-  }
-}
-
-function clickStepCard(idx) {
-  if (idx <= state.step) runStep(idx);
-}
-
-// =================================================================
-//  SHORT ANSWER
-// =================================================================
-function checkShortAnswer(idx) {
-  const input = document.getElementById('sa-input-' + idx);
-  const fb = document.getElementById('sa-fb-' + idx);
-  if (!input || !fb) return;
-
-  const val = input.value.trim().toLowerCase();
-  if (!val) { showToast('Please type an answer', 'info'); return; }
-
-  const step = COURSE[state.module].lessons[state.lesson].steps[idx];
-  const isCorrect = step.keywords.some(k => val.includes(k.toLowerCase()));
-
-  input.classList.remove('correct-input', 'wrong-input');
-
-  if (isCorrect) {
-    input.classList.add('correct-input');
-    fb.className = 'sa-feedback show correct';
-    fb.textContent = step.feedback;
-    showToast('Correct! ✓', 'ok');
-
-    // Enable coach button
-    const btn = document.getElementById('coachBtn');
-    btn.textContent = 'Continue →';
-    btn.style.opacity = '1';
-    btn.onclick = () => completeStep(idx);
-
-    setTimeout(() => completeStep(idx), 1800);
-  } else {
-    input.classList.add('wrong-input');
-    fb.className = 'sa-feedback show wrong';
-    fb.textContent = step.wrongFeedback;
-    showToast('Not quite — read the hint', 'no');
-    setTimeout(() => input.classList.remove('wrong-input'), 1200);
-  }
-}
-
-// =================================================================
-//  TASK
-// =================================================================
-function completeTask(idx) {
-  showToast('Task marked complete ✓', 'ok');
-  completeStep(idx);
-}
-
-// =================================================================
-//  DECISION
-// =================================================================
-function makeDecision(stepIdx, optIdx) {
-  const step = COURSE[state.module].lessons[state.lesson].steps[stepIdx];
-  const opt = step.options[optIdx];
-  const fb = document.getElementById('d-fb-' + stepIdx);
-
-  document.querySelectorAll(`[id^="dopt-${stepIdx}-"]`).forEach(el => {
-    el.style.pointerEvents = 'none';
-  });
-
-  const el = document.getElementById(`dopt-${stepIdx}-${optIdx}`);
-  el.classList.add(opt.correct ? 'selected-correct' : 'selected-wrong');
-
-  if (fb) {
-    fb.className = 'decision-feedback show ' + (opt.correct ? 'correct' : 'wrong');
-    fb.textContent = opt.feedback;
-  }
-
-  if (opt.correct) {
-    showToast('Correct decision! ✓', 'ok');
-    const btn = document.getElementById('coachBtn');
-    btn.textContent = 'Continue →';
-    btn.style.opacity = '1';
-    btn.onclick = () => completeStep(stepIdx);
-    setTimeout(() => completeStep(stepIdx), 2000);
-  } else {
-    showToast('Not quite — read the explanation', 'no');
-  }
-}
-
-// =================================================================
-//  COMPLETE LESSON
-// =================================================================
-function completeLesson() {
-  const key = state.module + '-' + state.lesson;
-  state.lessonsDone.add(key);
-
-  const mod = COURSE[state.module];
-  const nextLessonIdx = state.lesson + 1;
-
-  buildLessonTabs(mod);
-
-  if (nextLessonIdx < mod.lessons.length) {
-    showToast('Lesson complete! Loading next...', 'ok');
-    setTimeout(() => loadLesson(nextLessonIdx), 600);
-  } else {
-    // Module complete
-    state.modulesDone.add(state.module);
-    showToast('Module 1 complete! Take the Module Test.', 'ok');
-    document.getElementById('mod-' + state.module).classList.add('done');
-    // Unlock next module
-    const nextMod = document.getElementById('mod-' + (state.module + 1));
-    if (nextMod) nextMod.classList.remove('locked');
-    updateProgress();
-  }
-}
-
-// =================================================================
-//  UNLOCK NEXT MODULE
-// =================================================================
-function tryLoadModule(id) {
-  const el = document.getElementById('mod-' + id);
-  if (el && el.classList.contains('locked')) {
-    showToast('Complete the current module first', 'info');
-  } else {
-    state.module = id;
-    loadLesson(0);
-    document.querySelectorAll('.mod-item').forEach(m => m.classList.remove('active'));
-    el.classList.add('active');
-  }
-}
-
-function loadModule(id) {
-  state.module = id;
-  state.lesson = 0;
-  state.step = 0;
-  loadLesson(0);
-  document.querySelectorAll('.mod-item').forEach(m => m.classList.remove('active'));
-  document.getElementById('mod-' + id).classList.add('active');
-}
-
-// =================================================================
-//  PROGRESS
-// =================================================================
-function updateProgress() {
-  const mod = COURSE[state.module];
-  const totalSteps = mod.lessons.reduce((sum, l) => sum + l.steps.length, 0);
-  const done = state.stepsDone.size;
-  const pct = Math.round((done / totalSteps) * 100);
+  const pct = Math.round((idx / 10) * 100);
   document.getElementById('progressFill').style.width = pct + '%';
   document.getElementById('progressText').textContent = pct + '%';
+
+  renderSteps();
 }
 
-// =================================================================
-//  CONCEPTS (? button)
-// =================================================================
-const CONCEPTS = {
-  'users': { what: 'Active Users = people who had at least one engaged session (10+ seconds, a conversion, or 2+ pageviews). More accurate than raw "visitors" which counts bots and accidental clicks.', compare: 'Old GA: Sessions counted every visit. GA4 Active Users counts genuine human engagement.', good: 'Growing month-over-month = marketing is working', bad: 'Flat or declining = audience not growing', decision: 'If users are flat, check your acquisition channels — which is underperforming?' },
-  'newusers': { what: 'New Users = people GA4 has never seen before (first visit on this device/browser). Measured using cookies or Google Signals.', compare: 'New Users vs Returning Users = the acquisition vs retention balance. A healthy site has both growing.', good: 'High new users = strong acquisition', bad: 'Only new users, no returning = no loyalty — every customer is expensive to acquire', decision: 'If new users drop, your SEO or ads may be losing ground. Investigate acquisition channels.' },
-  'engtime': { what: 'Avg Engagement Time = time the user was actively using the page (tab in focus, user interacting). Does NOT count time with tab in background.', compare: 'GA4 Eng. Time vs UA Session Duration: Eng. Time is lower but more accurate — old duration was inflated by idle tabs.', good: '>2 minutes for content sites, >1 minute for product pages', bad: '<30 seconds = users are not finding what they expected', decision: 'Declining engagement time = check which page or traffic source lost engagement.' },
-  'engrate': { what: 'Engagement Rate = % of sessions that were engaged (10+ seconds, OR a conversion, OR 2+ pageviews). Replaced bounce rate.', compare: 'Eng. Rate is the INVERSE of bounce rate + more nuanced. ER 65% = 35% of sessions had no engagement.', good: '>60% is generally healthy for most sites', bad: '<50% = major problem — most visitors leave without engaging', decision: 'Low engagement rate = check page load speed, content relevance, and traffic quality.' },
-  'events': { what: 'Event Count = total number of tracked user actions. Every pageview, click, scroll, purchase = one event. GA4 is entirely event-based.', compare: 'Old GA used "hits". GA4 uses events for everything. More granular and flexible.', good: 'High event count = users are taking many actions = engaged', bad: 'High pageviews but low events = users are not interacting with content', decision: 'Low events despite high traffic = add custom event tracking to understand user behavior.' },
-  'revenue': { what: 'Total Revenue = sum of all purchase event revenues. Only shows data if ecommerce tracking (purchase event) is implemented.', compare: 'Revenue in GA4 is real-time if ecommerce events fire correctly. Requires implementation.', good: 'Growing revenue with growing engagement = sustainable', bad: 'Growing revenue with declining engagement = at risk — losing future buyers', decision: 'If revenue is strong but engagement declining, investigate where new buyers come from and if they will return.' },
-  'sessions': { what: 'Sessions = a group of user interactions within a 30-minute window. One user can have multiple sessions. Session resets after 30 min of inactivity or at midnight.', compare: 'Sessions > Users = users visiting multiple times. Sessions = Users = every visitor came once.', good: 'Sessions per User >1.5 = reasonable loyalty', bad: 'SPU near 1.0 = almost every user visits only once — no retention', decision: 'Low SPU = focus on email and retargeting to bring users back.' },
-  'spu': { what: 'Sessions per User (SPU) = average number of sessions per unique user. Measures loyalty and return rate.', compare: 'E-commerce average SPU: 1.2-1.5. Content sites: 2.0+. TechMart at 1.26 is below average.', good: 'SPU >1.5 = users come back without being pushed', bad: 'SPU near 1.0 = single-visit site — every conversion depends on one chance', decision: 'Low SPU = launch email campaigns, push notifications, or retargeting to bring users back.' }
-};
+function renderSteps() {
+  const steps = LESSONS[currLesson].steps;
+  const container = document.getElementById('stepFlow');
+  container.innerHTML = '';
 
-function showConcept(id) {
-  const c = CONCEPTS[id];
-  if (!c) return;
-  const text = document.getElementById('coachText');
-  if (text) {
-    text.innerHTML = `<strong style="color:#e0d9ff">${id.toUpperCase()}:</strong> ${c.what}<br><br>
-<span style="color:#86efac">Good: ${c.good}</span><br>
-<span style="color:#fca5a5">Bad: ${c.bad}</span>`;
+  steps.forEach((s, i) => {
+    const isActive = i === currStep;
+    const isDone = i < currStep;
+    
+    let icon = '📖';
+    if (s.type === 'demo') icon = '🎯';
+    if (s.type === 'do') icon = '👆';
+    if (s.type === 'quiz') icon = '🧠';
+
+    let html = `
+      <div class="step-card ${isActive ? 'active' : ''} ${isDone ? 'done' : (i > currStep ? 'locked' : '')}" id="step-${i}">
+        <div class="step-header">
+          <div class="step-icon">${isDone ? '✓' : icon}</div>
+          <div class="step-label">${s.type.toUpperCase()}: ${s.text.replace(/\*\*(.*?)\*\*/g,'<strong style="color:var(--accent)">$1</strong>')}</div>
+        </div>
+        <div class="step-action-area">`;
+    
+    if (s.type === 'explain') {
+      html += `<button class="btn-primary" onclick="advance()">I understand →</button>`;
+    } else if (s.type === 'demo') {
+      html += `<button class="btn-primary" onclick="advance()">Show me →</button>`;
+    } else if (s.type === 'do') {
+      html += `<div style="font-size:12px;color:var(--text2);margin-bottom:8px">Waiting for you to click the highlighted element in the dashboard...</div>`;
+    } else if (s.type === 'quiz') {
+      html += `
+        <input type="text" class="sa-input" id="quiz-input" placeholder="Type answer...">
+        <div style="font-size:11px;color:var(--text2);margin-bottom:10px">💡 Hint: ${s.hint}</div>
+        <button class="btn-primary" onclick="checkQuiz('${s.answer}')">Submit</button>
+        <div class="sa-feedback" id="quiz-fb"></div>`;
+    }
+
+    html += `</div></div>`;
+    container.innerHTML += html;
+  });
+
+  applyLogic();
+}
+
+function applyLogic() {
+  clearHighlights();
+  const step = LESSONS[currLesson].steps[currStep];
+  
+  // Set Coach text
+  document.getElementById('coachText').innerHTML = step.text.replace(/\*\*(.*?)\*\*/g,'<strong style="color:var(--accent)">$1</strong>');
+  
+  // TTS if active
+  if (speechSynthesis.speaking || document.getElementById('audioBtn').textContent === '⏸') {
+    playAudio(step.text);
   }
-  showToast('Concept loaded in Coach panel', 'info');
+
+  if (step.type === 'demo') {
+    highlightEl(step.target);
+  } else if (step.type === 'do') {
+    highlightEl(step.target);
+    const el = document.getElementById(step.target);
+    if (el) {
+      el.onclick = () => {
+        if (step.action) step.action();
+        advance();
+      };
+    }
+  }
+}
+
+function advance() {
+  currStep++;
+  if (currStep >= LESSONS[currLesson].steps.length) {
+    if (currLesson === 9) {
+      document.getElementById('cert').style.display = 'flex';
+      document.getElementById('progressFill').style.width = '100%';
+      document.getElementById('progressText').textContent = '100%';
+    } else {
+      loadLesson(currLesson + 1);
+    }
+  } else {
+    renderSteps();
+  }
+}
+
+function checkQuiz(answer) {
+  const val = document.getElementById('quiz-input').value.toLowerCase().trim();
+  const fb = document.getElementById('quiz-fb');
+  const input = document.getElementById('quiz-input');
+  
+  if (val.includes(answer.toLowerCase())) {
+    input.className = 'sa-input correct';
+    fb.style.display = 'block'; fb.style.color = 'var(--green)'; fb.textContent = 'Correct!';
+    setTimeout(advance, 1000);
+  } else {
+    input.className = 'sa-input wrong';
+    fb.style.display = 'block'; fb.style.color = 'var(--red)'; fb.textContent = 'Incorrect. Try again.';
+  }
 }
 
 // =================================================================
-//  HIGHLIGHT
+// UTILS: Highlighting & Audio
 // =================================================================
 function highlightEl(id) {
-  clearHighlights();
   const el = document.getElementById(id);
   if (!el) return;
-
   el.classList.add('pulsing');
-  if (el.tagName === 'TR') el.classList.add('pulsing-row');
-
+  
   const rect = el.getBoundingClientRect();
   const overlay = document.getElementById('spotlight');
   const hole = document.getElementById('sHole');
-  const label = document.getElementById('sLabel');
-
-  const pad = 5;
+  
+  const pad = 6;
   hole.style.left = (rect.left - pad) + 'px';
   hole.style.top = (rect.top - pad) + 'px';
   hole.style.width = (rect.width + pad * 2) + 'px';
   hole.style.height = (rect.height + pad * 2) + 'px';
-
-  const labelTop = rect.top - pad - 34;
-  label.style.left = rect.left + 'px';
-  label.style.top = (labelTop > 55 ? labelTop : rect.bottom + pad + 6) + 'px';
-
+  
   overlay.classList.add('on');
-  setTimeout(() => overlay.classList.remove('on'), 9000);
 }
 
 function clearHighlights() {
-  document.querySelectorAll('.pulsing,.pulsing-row').forEach(el => {
-    el.classList.remove('pulsing', 'pulsing-row');
+  document.querySelectorAll('.pulsing').forEach(el => {
+    el.classList.remove('pulsing');
+    el.onclick = null; // Clear old click handlers
   });
   document.getElementById('spotlight').classList.remove('on');
 }
 
-// =================================================================
-//  MODULE TEST
-// =================================================================
-function openTest() {
-  const mod = COURSE[state.module];
-  const t = mod.test;
-
-  let html = `<div class="test-hdr">
-<div class="test-title">${t.title}</div>
-<div class="test-subtitle">${t.subtitle}</div>
-</div>`;
-
-  // Section 1: Short answers
-  html += `<div class="test-section">
-<div class="test-section-title">Part 1 — Quick Recall (type your answer)</div>`;
-  t.shortAnswers.forEach((sa, i) => {
-    html += `<div class="test-sa">
-<div class="test-sa-q">${i + 1}. ${sa.q}</div>
-<input class="test-sa-input" id="tsa-${i}" placeholder="Your answer...">
-</div>`;
-  });
-  html += `</div>`;
-
-  // Section 2: Action tasks
-  html += `<div class="test-section">
-<div class="test-section-title">Part 2 — Action Tasks (do these in the dashboard)</div>`;
-  t.actionTasks.forEach((at, i) => {
-    html += `<div class="test-action">
-<div class="test-action-title">${at.title}</div>
-<div class="test-action-steps" style="white-space:pre-line">${at.steps}</div>
-<label class="test-action-checkbox"><input type="checkbox" id="tact-${i}"> ${at.label}</label>
-</div>`;
-  });
-  html += `</div>`;
-
-  // Section 3: Scenario
-  const s = t.scenario;
-  html += `<div class="test-section">
-<div class="test-section-title">Part 3 — Scenario Case</div>
-<div class="test-scenario">
-<div class="test-scenario-case">📋 ${s.case}</div>
-<ul class="test-scenario-steps">`;
-  s.steps.forEach((st, i) => {
-    html += `<li class="test-scenario-step">
-<div class="test-scenario-num">${i + 1}</div>
-<div class="test-scenario-q">${st.q}<input class="test-scenario-input" id="tsc-${i}" placeholder="${st.placeholder}"></div>
-</li>`;
-  });
-  html += `</ul></div></div>`;
-
-  html += `<div class="test-submit-row">
-<button class="btn-close-test" onclick="closeTest()">Save for later</button>
-<button class="btn-submit" onclick="submitTest()">Submit & score</button>
-</div>`;
-
-  document.getElementById('testBox').innerHTML = html;
-  document.getElementById('testOverlay').classList.add('open');
-}
-
-function submitTest() {
-  const mod = COURSE[state.module];
-  const t = mod.test;
-  let score = 0;
-  let total = t.shortAnswers.length;
-
-  t.shortAnswers.forEach((sa, i) => {
-    const input = document.getElementById('tsa-' + i);
-    if (!input) return;
-    const val = input.value.trim().toLowerCase();
-    const correct = sa.keywords.some(k => val.includes(k.toLowerCase()));
-    input.classList.add(correct ? 'correct-input' : 'wrong-input');
-    if (correct) score++;
-  });
-
-  const pct = Math.round((score / total) * 100);
-  const passed = pct >= 70;
-
-  const box = document.getElementById('testBox');
-  box.insertAdjacentHTML('beforeend', `
-<div class="test-score-panel">
-<div class="test-score-num">${pct}%</div>
-<div class="test-score-label">${score} of ${total} recall questions correct</div>
-<div class="test-score-msg">${passed ? '🎉 Passed! You are ready for the next module.' : '📚 Review the lesson and try the recall questions again.'}</div>
-<div class="test-submit-row">
-<button class="btn-submit" onclick="closeTest()">${passed ? 'Continue learning →' : 'Review lesson'}</button>
-</div>
-</div>`);
-
-  if (passed) {
-    state.modulesDone.add(state.module);
-    const nextMod = document.getElementById('mod-' + (state.module + 1));
-    if (nextMod) nextMod.classList.remove('locked');
-  }
-}
-
-function closeTest() { document.getElementById('testOverlay').classList.remove('open'); }
-function closeTestBg(e) { if (e.target === document.getElementById('testOverlay')) closeTest(); }
-
-// =================================================================
-//  PROF. JOHN
-// =================================================================
-function openJohn() { document.getElementById('johnOverlay').classList.add('open'); }
-function closeJohn() { document.getElementById('johnOverlay').classList.remove('open'); }
-function closeJohnBg(e) { if (e.target === document.getElementById('johnOverlay')) closeJohn(); }
-
-async function sendJohn() {
-  const input = document.getElementById('johnInput');
-  const text = input.value.trim();
-  if (!text) return;
-  input.value = '';
-
-  const msgs = document.getElementById('johnMsgs');
-  const mod = COURSE[state.module];
-  const lesson = mod?.lessons[state.lesson];
-
-  const um = document.createElement('div');
-  um.className = 'jmsg user';
-  um.textContent = text;
-  msgs.appendChild(um);
-
-  const typing = document.createElement('div');
-  typing.className = 'jtyping';
-  typing.innerHTML = '<div class="jdot"></div><div class="jdot"></div><div class="jdot"></div>';
-  msgs.appendChild(typing);
-  msgs.scrollTop = msgs.scrollHeight;
-
-  try {
-    const res = await fetch('/api/ai', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        message: text,
-        context: `You are Prof. John, a world-class GA4 expert and analytics professor at a top university.
-A student is learning GA4 through SkillOS, an interactive training platform.
-Current lesson: "${lesson?.title || 'GA4 Fundamentals'}".
-The student's coach (Coach Alex) handles step-by-step lesson guidance. You handle DEEPER questions — methodology, theory, edge cases, industry context.
-Rules: Be precise and professional. No padding. Under 120 words. No markdown formatting. Plain text only. Real examples when possible.`
-      })
-    });
-    const data = await res.json();
-    typing.remove();
-    const bm = document.createElement('div');
-    bm.className = 'jmsg bot';
-    bm.textContent = data.reply || 'I could not retrieve a response right now.';
-    msgs.appendChild(bm);
-  } catch (e) {
-    typing.remove();
-    const bm = document.createElement('div');
-    bm.className = 'jmsg bot';
-    bm.textContent = 'Connection error. Check that the API is configured in your deployment settings.';
-    msgs.appendChild(bm);
-  }
-  msgs.scrollTop = msgs.scrollHeight;
-}
-
-// =================================================================
-//  AUDIO — pause on input focus, better voice, play/pause button
-// =================================================================
-function pauseAudio() {
-  if (!window.speechSynthesis) return;
-  window.speechSynthesis.cancel();
-  state.speaking = false;
-  const btn = document.getElementById('audioBtn');
-  if (btn) { btn.textContent = '▶'; btn.style.background = 'rgba(255,255,255,.2)'; }
-}
-
 function playAudio(text) {
-  if (!text || !window.speechSynthesis) return;
   window.speechSynthesis.cancel();
-  const clean = text.replace(/[*_[\]]/g,'').replace(/[🎉👆👋✓⚠️📋🔍💡📌🔴]/g,'');
-  const utt = new SpeechSynthesisUtterance(clean);
-  // Slower, clearer pace — sounds more like a teacher
-  utt.rate = 0.86;
-  utt.pitch = 1.0;
-  utt.volume = 1;
-  const voices = window.speechSynthesis.getVoices();
-  // Best priority: Google US English (natural) → any US English → any English
-  const voice = voices.find(v => v.name === 'Google US English')
-    || voices.find(v => v.name.includes('Google') && v.lang === 'en-US')
-    || voices.find(v => v.lang === 'en-US' && !v.name.toLowerCase().includes('microsoft'))
-    || voices.find(v => v.lang.startsWith('en'));
-  if (voice) utt.voice = voice;
-  utt.onstart = () => {
-    state.speaking = true;
-    const btn = document.getElementById('audioBtn');
-    if (btn) { btn.textContent = '⏸'; btn.style.background = 'rgba(255,255,255,.35)'; }
-  };
-  utt.onend = () => {
-    state.speaking = false;
-    const btn = document.getElementById('audioBtn');
-    if (btn) { btn.textContent = '▶'; btn.style.background = 'rgba(255,255,255,.2)'; }
-  };
+  const utt = new SpeechSynthesisUtterance(text.replace(/[*_]/g, ''));
+  utt.rate = 0.9;
+  const btn = document.getElementById('audioBtn');
+  utt.onstart = () => btn.textContent = '⏸';
+  utt.onend = () => btn.textContent = '▶';
   window.speechSynthesis.speak(utt);
 }
 
 function toggleAudio() {
-  if (state.speaking) {
-    pauseAudio();
+  if (speechSynthesis.speaking) {
+    window.speechSynthesis.cancel();
+    document.getElementById('audioBtn').textContent = '▶';
   } else {
-    const lesson = COURSE[state.module]?.lessons[state.lesson];
-    const step = lesson?.steps[state.step];
-    if (step?.audio) playAudio(step.audio);
+    playAudio(document.getElementById('coachText').textContent);
   }
 }
 
-// AUTO PAUSE when user clicks into any input or textarea
-document.addEventListener('focusin', e => {
-  if (e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA') pauseAudio();
-});
-
-window.speechSynthesis.onvoiceschanged = () => {};
-
-// =================================================================
-//  TOAST
-// =================================================================
-function showToast(msg, type = '') {
-  const t = document.getElementById('toast');
-  t.textContent = msg;
-  t.className = 'toast ' + type + ' show';
-  setTimeout(() => t.classList.remove('show'), 2800);
-}
-
-// =================================================================
-//  CHARTS
-// =================================================================
-let mainChartObj;
-
-function initCharts() {
-  const labels = [];
-  const d = new Date('2025-02-16');
-  for (let i = 0; i < 30; i++) {
-    labels.push(d.toLocaleDateString('en', { month: 'short', day: 'numeric' }));
-    d.setDate(d.getDate() + 1);
-  }
-  const users = [620,580,710,840,920,880,760,690,830,910,980,1020,870,760,820,940,1100,1050,980,890,1020,1140,1080,960,870,1010,1120,1200,1150,1080];
-  const ctx = document.getElementById('mainChart')?.getContext('2d');
-  if (!ctx) return;
-
-  mainChartObj = new Chart(ctx, {
-    type: 'line',
-    data: {
-      labels,
-      datasets: [{
-        label: 'Users', data: users,
-        borderColor: '#1a73e8', backgroundColor: 'rgba(26,115,232,.07)',
-        fill: true, tension: 0.4, pointRadius: 2, borderWidth: 2
-      }]
-    },
-    options: {
-      responsive: true, maintainAspectRatio: false,
-      plugins: { legend: { display: false } },
-      scales: {
-        x: { grid: { display: false }, ticks: { font: { size: 9 }, maxTicksLimit: 8 } },
-        y: { grid: { color: '#f1f3f4' }, ticks: { font: { size: 9 } } }
-      },
-      onClick: () => dashClick('main-chart-section')
-    }
-  });
-}
-
-function switchMainChart(type, btn) {
-  document.querySelectorAll('.ctab').forEach(t => t.classList.remove('active'));
-  btn.classList.add('active');
-  const sets = {
-    users: [620,580,710,840,920,880,760,690,830,910,980,1020,870,760,820,940,1100,1050,980,890,1020,1140,1080,960,870,1010,1120,1200,1150,1080],
-    sessions: [780,720,890,1040,1150,1100,950,870,1040,1140,1230,1280,1090,960,1030,1180,1380,1320,1230,1120,1280,1430,1360,1210,1100,1270,1400,1510,1440,1360],
-    revenue: [0,0,1240,0,2100,980,0,0,1840,0,2400,0,1100,0,0,2800,0,3200,0,1400,0,2600,0,1800,0,0,3100,0,2400,0]
-  };
-  if (mainChartObj) {
-    mainChartObj.data.datasets[0].data = sets[type] || sets.users;
-    mainChartObj.data.datasets[0].label = type;
-    mainChartObj.update();
-  }
-  dashClick('main-chart-section');
-}
+// Start
+window.onload = init;
 </script>
 </body>
 </html>
